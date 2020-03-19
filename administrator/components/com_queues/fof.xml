@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fof>
+    <!-- Common settings -->
+    <common>
+        <!-- Container configuration -->
+        <container>
+            <option name="componentNamespace"><![CDATA[Weble\JoomlaQueues]]></option>
+        </container>
+
+        <!-- Dispatcher configuration -->
+        <dispatcher>
+            <option name="defaultView">Jobs</option>
+        </dispatcher>
+    </common>
+
+    <!-- Component backend options -->
+    <backend>
+        <!-- The same options as Common Settings apply here, too -->
+    </backend>
+
+    <!-- Component frontend options -->
+    <frontend>
+
+    </frontend>
+</fof>

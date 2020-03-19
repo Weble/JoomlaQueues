@@ -34,3 +34,4 @@
 .idea
 
 # CUSTOM!
+!administrator/components/com_queues

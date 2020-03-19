@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.9" type="component" method="upgrade">
+    <name>COM_QUEUES</name>
+    <creationDate>March 2020</creationDate>
+    <author>Weble Srl</author>
+    <authorEmail>daniele@weble.it</authorEmail>
+    <authorUrl>https://www.weble.it</authorUrl>
+    <copyright>Copyright (c)2020 Weble Srl</copyright>
+    <license>GNU GPL v3 or later</license>
+    <version>1.0.0</version>
+    <description>COM_QUEUES_DESC</description>
+
+    <!-- Administrator back-end section -->
+    <administration>
+        <!-- Administration menu -->
+        <menu view="Jobs">COM_QUEUES</menu>
+
+        <!-- Back-end files -->
+        <files folder="backend">
+            <filename>access.xml</filename>
+            <filename>queues.xml</filename>
+            <filename>config.xml</filename>
+            <filename>fof.xml</filename>
+            <filename>queues.php</filename>
+        </files>
+    </administration>
+</extension>
