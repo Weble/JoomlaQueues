@@ -1,0 +1,17 @@
+<form
+        validate="true"
+        serverside_validate="true"
+>
+    <fieldset name="basic_configuration"
+              description=""
+              class="span12"
+    >
+        <field name="name" type="Text"
+               class="inputbox"
+               label="COM_QUEUES_QUEUES_NAME_LBL"
+               required="true"
+               size="50"
+        />
+
+    </fieldset>
+</form>

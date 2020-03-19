@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form
+        type="browse"
+        show_header="1"
+        show_filters="1"
+        show_pagination="1"
+        norows_placeholder="COM_QUEUES_COMMON_NORECORDS"
+        relation_depth="2"
+>
+    <headerset>
+        <header name="id" type="RowSelect" tdwidth="20" />
+
+        <header name="name" type="Searchable" sortable="true"
+                buttons="yes" buttonclass="btn" label="COM_QUEUES_QUEUES_NAME_LBL"
+        />
+    </headerset>
+
+    <fieldset name="items">
+
+        <field name="id" type="SelectRow"/>
+
+        <field name="name" type="Text"
+               show_link="true"
+               url="index.php?option=com_queues&amp;view=Queues&amp;id=[ITEM:ID]&amp;task=edit"
+               empty_replacement="(no title)"
+        />
+    </fieldset>
+</form>

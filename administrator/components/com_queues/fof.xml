@@ -15,7 +15,9 @@
 
     <!-- Component backend options -->
     <backend>
-        <!-- The same options as Common Settings apply here, too -->
+        <container>
+            <option name="factoryClass">FOF30\Factory\MagicFactory</option>
+        </container>
     </backend>
 
     <!-- Component frontend options -->
