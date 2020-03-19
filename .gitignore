@@ -35,3 +35,6 @@
 
 # CUSTOM!
 !administrator/components/com_queues
+!libraries/joomla-queues
+libraries/joomla-queues/vendor
+!plugins/console/queue
