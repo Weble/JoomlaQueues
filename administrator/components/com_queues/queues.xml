@@ -22,6 +22,9 @@
             <filename>config.xml</filename>
             <filename>fof.xml</filename>
             <filename>queues.php</filename>
+            <folder>sql</folder>
         </files>
     </administration>
+
+    <scriptfile>script.com_queues.php</scriptfile>
 </extension>
