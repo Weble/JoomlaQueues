@@ -44,7 +44,7 @@ $model = $this->getModel();
         <tr>
             {{-- Row select --}}
             <td>
-                @jhtml('check', ++$i, $row->getId())
+                {{ $row->getId() }}
             </td>
             <td>
                {{ $row->getId() }}

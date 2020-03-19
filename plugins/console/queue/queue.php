@@ -1,5 +1,6 @@
 <?php
 
+use Doctrine\DBAL\DriverManager;
 use FOF30\Container\Container;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Plugin\CMSPlugin;
@@ -8,7 +9,9 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\Command\ConsumeMessagesCommand;
-use Symfony\Component\Messenger\Command\SetupTransportsCommand;
+use Symfony\Component\Messenger\Transport\Doctrine\Connection;
+use Symfony\Component\Messenger\Transport\Doctrine\DoctrineTransport;
+use Symfony\Component\Messenger\Transport\Serialization\PhpSerializer;
 use Symfony\Component\Messenger\Transport\Sync\SyncTransport;
 use Weble\JoomlaQueues\Locator\ReceiverLocator;
 
@@ -60,18 +63,19 @@ class PlgConsoleQueue extends CMSPlugin
         $consumeCommand = new ConsumeMessagesCommand(
             $this->container->queue->bus(),
             new ReceiverLocator([
-                'sync' => new SyncTransport($this->container->queue->bus())
+                //'sync'     => new SyncTransport($this->container->queue->bus()),
+                'doctrine' => $this->container->queue->doctrineTransport()
             ]),
             $eventDispatcher,
             Log::createDelegatedLogger(),
             [
-                'sync'
+                //'sync',
+                'doctrine'
             ]
         );
 
         $console->addCommands([
-            $consumeCommand,
-            new SetupTransportsCommand($this->containerBuilder)
+            $consumeCommand
         ]);
     }
 }

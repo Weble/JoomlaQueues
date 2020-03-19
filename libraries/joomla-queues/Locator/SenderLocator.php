@@ -12,10 +12,15 @@ use Symfony\Component\Messenger\Transport\Sender\SendersLocatorInterface;
 class SenderLocator implements SendersLocatorInterface
 {
     private $sendersMap = [];
+    /**
+     * @var array
+     */
+    private array $classMap;
 
-    public function __construct(array $sendersMap)
+    public function __construct(array $sendersMap, array $classMap)
     {
         $this->sendersMap = $sendersMap;
+        $this->classMap = $classMap;
     }
 
     /**
@@ -33,8 +38,7 @@ class SenderLocator implements SendersLocatorInterface
                     }
 
                     $seen[] = $senderAlias;
-                    $sender = $senderAlias;
-                    yield $senderAlias => $sender;
+                    yield $senderAlias => $this->classMap[$senderAlias];
                 }
             }
         }

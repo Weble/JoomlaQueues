@@ -10,6 +10,6 @@ class SendEmailHandler implements MessageHandlerInterface
 {
     public function __invoke(SendEmailMessage $message)
     {
-        var_dump($message);
+        file_put_contents(JPATH_SITE . '/tmp/test.txt', 'test');
     }
 }

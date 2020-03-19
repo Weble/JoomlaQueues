@@ -1,9 +1,11 @@
 <?php
 // no direct access
+use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Type;
 use Enqueue\Dbal\DbalConnectionFactory;
 use Joomla\CMS\Factory;
+use Symfony\Component\Messenger\Transport\Doctrine\Connection;
 
 defined('_JEXEC') or die();
 
@@ -24,13 +26,13 @@ class Com_QueuesInstallerScript
 
     private function installJobsTable()
     {
-        $this->getDbalFactory()->createContext()->createDataBaseTable();
+        $this->getDriverConnection()->setup();
     }
 
     private function installQueuesTable()
     {
         $tableName = Factory::getConfig()->get("dbprefix") . "queues_queues";
-        $sm = $this->getDbalFactory()->createContext()->getDbalConnection()->getSchemaManager();
+        $sm = $this->getDbalConnection()->getSchemaManager();
 
         if ($sm->tablesExist([$tableName])) {
             return;
@@ -48,24 +50,34 @@ class Com_QueuesInstallerScript
         $sm->createTable($table);
     }
 
-    private function getDbalFactory(): DbalConnectionFactory
+    private function getDbalConnection(): \Doctrine\DBAL\Connection
     {
         $config = Factory::getConfig();
-        $user = $config->get("user");
-        $password = $config->get("password");
-        $host = $config->get("host");
-        $db = $config->get("db");
-        $url = "mysql://" . $user . ":" . $password . "@" . $host . "/" . $db;
 
-        $config = [
-            'connection' => [
-                'url'    => $url,
-                'driver' => 'pdo_mysql',
-            ],
-            'table_name' => $config->get("dbprefix") . "queues_jobs",
-        ];
+        $connectionParams = array(
+            'dbname'   => $config->get('db'),
+            'user'     => $config->get('user'),
+            'password' => $config->get('password'),
+            'host'     => $config->get('host'),
+            'driver'   => 'pdo_mysql',
+        );
 
-        return new DbalConnectionFactory($config);
+        $conn = DriverManager::getConnection($connectionParams);
+        $conn->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
+        return $conn;
+    }
+
+    private function getDriverConnection(): Connection
+    {
+        $config = Factory::getConfig();
+
+        $driverConnection = new Connection([
+            'table_name'        => $config->get('dbprefix') . 'queues_jobs',
+            'redeliver_timeout' => 3600,
+            'auto_setup'        => false,
+        ], $this->getDbalConnection());
+
+        return $driverConnection;
     }
 
 }
