@@ -2,10 +2,16 @@
     "name": "weble/joomla-queues",
     "require": {
         "php": "^7.3",
-        "enqueue/dbal": "^0.10.1",
-        "enqueue/job-queue": "^0.10.1",
-        "enqueue/enqueue": "^0.10.1"
+        "symfony/messenger": "^5.0",
+        "symfony/dependency-injection": "^5.0",
+        "symfony/event-dispatcher": "^5.0",
+        "symfony/config": "^5.0"
     },
+    "autoload": {
+    "psr-4": {
+        "Weble\\JoomlaQueues\\": "libraries/joomla-queues/"
+    }
+},
     "config": {
         "vendor-dir": "libraries/joomla-queues/vendor"
     }
