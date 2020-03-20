@@ -3,14 +3,15 @@
 
 namespace Weble\JoomlaQueues\Admin;
 
-use Weble\JoomlaQueues\Service\DefaultBus;
-use Weble\JoomlaQueues\Service\Queue;
-use Weble\JoomlaQueues\Service\RoutableBus;
+use Weble\JoomlaQueues\Admin\Service\Bus;
+use Weble\JoomlaQueues\Admin\Service\Queue;
+use Weble\JoomlaQueues\Admin\Service\RoutableBus;
+use Weble\JoomlaQueues\Admin\Service\Transport;
 
 /**
  * @property-read Queue $queue
- * @property-read DefaultBus $defaultBus
- * @property-read RoutableBus $routableBus
+ * @property-read Bus $bus
+ * @property-read Transport $transport
  */
 class Container extends \FOF30\Container\Container
 {
@@ -18,19 +19,21 @@ class Container extends \FOF30\Container\Container
     {
         parent::__construct($values);
 
+        if (!isset($this['bus'])) {
+            $this['bus'] = function (self $c) {
+                return new Bus($c);
+            };
+        }
+
         if (!isset($this['queue'])) {
             $this['queue'] = function (self $c) {
                 return new Queue($c);
             };
         }
-        if (!isset($this['defaultBus'])) {
-            $this['defaultBus'] = function (self $c) {
-                return new DefaultBus($c);
-            };
-        }
-        if (!isset($this['routableBus'])) {
-            $this['routableBus'] = function (self $c) {
-                return new RoutableBus($c);
+
+        if (!isset($this['transport'])) {
+            $this['transport'] = function (self $c) {
+                return new Transport($c);
             };
         }
     }

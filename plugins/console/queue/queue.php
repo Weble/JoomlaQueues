@@ -5,8 +5,11 @@ use Joomla\CMS\Log\Log;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Symfony\Component\Console\Application;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\Command\ConsumeMessagesCommand;
-use Weble\JoomlaQueues\Locator\ReceiverLocator;
+use Symfony\Component\Messenger\Command\DebugCommand;
+use Weble\JoomlaQueues\Command\PingQueueCommand;
+use Weble\JoomlaQueues\Locator\PluginTransportLocator;
 
 defined('_JEXEC') or die;
 
@@ -22,10 +25,6 @@ class PlgConsoleQueue extends CMSPlugin
     protected $app;
     protected $autoloadLanguage = true;
     /**
-     * @var ContainerBuilder
-     */
-    private $containerBuilder;
-    /**
      * @var \Weble\JoomlaQueues\Admin\Container
      */
     private $container;
@@ -34,29 +33,27 @@ class PlgConsoleQueue extends CMSPlugin
     {
         parent::__construct($subject, $config);
 
-        $this->containerBuilder = new ContainerBuilder();
-
         $this->container = Container::getInstance('com_queues', [], 'admin');
     }
 
     public function onGetConsoleCommands(Application $console)
     {
+        $transportLocator = new PluginTransportLocator();
+
         $consumeCommand = new ConsumeMessagesCommand(
-            $this->container->routableBus->bus(),
-            new ReceiverLocator([
-                // 'sync'     => new SyncTransport($this->container->queue->bus()),
-                'doctrine' => $this->container->defaultBus->doctrineTransport()
-            ]),
-            $this->container->defaultBus->eventDispatcher(),
+            $this->container->bus->routableBus(),
+            $transportLocator,
+            new EventDispatcher(),
             Log::createDelegatedLogger(),
-            [
-                //'sync',
-                'doctrine'
-            ]
+            $transportLocator->getReceivers()
         );
 
+
+
         $console->addCommands([
-            $consumeCommand
+            $consumeCommand,
+            new DebugCommand($this->container->queue->handlersLocator()->debugHandlers()),
+            new PingQueueCommand()
         ]);
     }
 }

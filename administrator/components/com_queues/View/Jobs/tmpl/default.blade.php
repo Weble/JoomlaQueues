@@ -25,14 +25,20 @@ $model = $this->getModel();
         <th>
             @sortgrid('id')
         </th>
-        <th width="20%">
-            @sortgrid('published_at')
+        <th>
+            @lang('COM_QUEUES_MESSAGE_CLASS')
         </th>
         <th width="20%">
-            @sortgrid('queue')
+            @sortgrid('queue_name')
+        </th>
+        <th width="20%">
+            @sortgrid('created_at')
+        </th>
+        <th width="20%">
+            @sortgrid('available_at')
         </th>
         <th width="60">
-            @sortgrid('priority')
+            @sortgrid('delivered_at')
         </th>
     </tr>
 @stop
@@ -44,19 +50,25 @@ $model = $this->getModel();
         <tr>
             {{-- Row select --}}
             <td>
-                {{ $row->getId() }}
+                <input type="checkbox" name="cid[]" value="{{ $row->getId() }}" />
             </td>
             <td>
                {{ $row->getId() }}
             </td>
             <td>
-                {{ $row->published_at }}
+                {{ get_class($row->message()->getMessage()) }}
             </td>
             <td>
-                {{ $row->queue }}
+                {{ $row->queue_name }}
             </td>
             <td>
-                {{ $row->priority }}
+                {{ $row->created_at }}
+            </td>
+            <td>
+                {{ $row->available_at }}
+            </td>
+            <td>
+                {{ $row->delivered_at }}
             </td>
         </tr>
     @endforeach

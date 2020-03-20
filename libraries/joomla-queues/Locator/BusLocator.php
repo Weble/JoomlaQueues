@@ -3,8 +3,8 @@
 
 namespace Weble\JoomlaQueues\Locator;
 
-
-use FOF30\Container\Container;
+use Joomla\CMS\Factory;
+use Joomla\CMS\Plugin\PluginHelper;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -14,24 +14,25 @@ class BusLocator implements ContainerInterface
      * @var MessageBusInterface[]
      */
     private $buses = [];
-    /**
-     * @var \Weble\JoomlaQueues\Admin\Container
-     */
-    private $container;
 
-    public function __construct(Container $container)
+    public function __construct()
     {
-        $this->container = $container;
-        $this->buses[$this->container->defaultBus->getName()] = $this->container->defaultBus->bus();
-
-        $this->container->platform->importPlugin('queue');
-        $results = $this->container->platform->runPlugins('onGetQueueBuses', []);
+        PluginHelper::importPlugin('queue');
+        $results = Factory::getApplication()->triggerEvent('onGetQueueBuses');
 
         foreach ($results as $pluginIndex => $pluginHandlerList) {
             foreach ($pluginHandlerList as $busName => $bus) {
                 $this->buses[$busName] = $bus;
             }
         }
+    }
+
+    /**
+     * @return MessageBusInterface[]
+     */
+    public function all(): array
+    {
+        return $this->buses;
     }
 
     public function get($id)
