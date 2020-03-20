@@ -10,6 +10,10 @@ class SendEmailHandler implements MessageHandlerInterface
 {
     public function __invoke(SendEmailMessage $message)
     {
-        file_put_contents(JPATH_SITE . '/tmp/test.txt', 'test');
+        $mailer = \JFactory::getMailer();
+        $mailer->addRecipient('daniele@weble.it');
+        $mailer->setSubject('test');
+        $mailer->setBody('test');
+        $mailer->Send();
     }
 }

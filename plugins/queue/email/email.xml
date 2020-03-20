@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension version="3.9" type="plugin" group="queue" method="upgrade">
+    <name>PLG_QUEUE_EMAIL</name>
+    <version>1.0</version>
+    <creationDate>March 2020</creationDate>
+    <copyright>(C) 2020 Weble Srl</copyright>
+    <license>MIT</license>
+    <author>Weble Srl</author>
+    <authorEmail>daniele@weble.it</authorEmail>
+    <authorUrl>http://www.weble.it</authorUrl>
+    <files>
+        <filename plugin="email">email.php</filename>
+    </files>
+
+    <config>
+        <fields name="params">
+            <fieldset name="basic">
+            </fieldset>
+        </fields>
+    </config>
+</extension>

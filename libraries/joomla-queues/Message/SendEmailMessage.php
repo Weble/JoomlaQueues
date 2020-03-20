@@ -11,4 +11,9 @@ class SendEmailMessage
     public $from;
 
     public $message;
+
+    public function __construct()
+    {
+
+    }
 }

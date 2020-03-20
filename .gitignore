@@ -41,3 +41,4 @@ libraries/joomla-queues/vendor
 !plugins/console/
 plugins/console/*
 !plugins/console/queue
+!plugins/queue/

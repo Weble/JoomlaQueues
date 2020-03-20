@@ -1,18 +1,11 @@
 <?php
 
-use Doctrine\DBAL\DriverManager;
 use FOF30\Container\Container;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Plugin\CMSPlugin;
-use Joomla\CMS\Plugin\PluginHelper;
 use Symfony\Component\Console\Application;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\Command\ConsumeMessagesCommand;
-use Symfony\Component\Messenger\Transport\Doctrine\Connection;
-use Symfony\Component\Messenger\Transport\Doctrine\DoctrineTransport;
-use Symfony\Component\Messenger\Transport\Serialization\PhpSerializer;
-use Symfony\Component\Messenger\Transport\Sync\SyncTransport;
 use Weble\JoomlaQueues\Locator\ReceiverLocator;
 
 defined('_JEXEC') or die;
@@ -48,25 +41,13 @@ class PlgConsoleQueue extends CMSPlugin
 
     public function onGetConsoleCommands(Application $console)
     {
-        $eventDispatcher = new EventDispatcher();
-
-        PluginHelper::importPlugin('queue');
-        $results = $this->app->triggerEvent('onGetQueueHandlers');
-
-        $handlers = [];
-        foreach ($results as $pluginIndex => $pluginHandlerList) {
-            foreach ($pluginHandlerList as $message => $pluginHandlers) {
-                $handlers[$message] = array_merge($handlers[$message] ?? [], $pluginHandlers);
-            }
-        }
-
         $consumeCommand = new ConsumeMessagesCommand(
-            $this->container->queue->bus(),
+            $this->container->routableBus->bus(),
             new ReceiverLocator([
-                //'sync'     => new SyncTransport($this->container->queue->bus()),
-                'doctrine' => $this->container->queue->doctrineTransport()
+                // 'sync'     => new SyncTransport($this->container->queue->bus()),
+                'doctrine' => $this->container->defaultBus->doctrineTransport()
             ]),
-            $eventDispatcher,
+            $this->container->defaultBus->eventDispatcher(),
             Log::createDelegatedLogger(),
             [
                 //'sync',
