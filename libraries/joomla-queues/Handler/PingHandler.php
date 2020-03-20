@@ -20,7 +20,7 @@ class PingHandler implements MessageHandlerInterface, MessageSubscriberInterface
         $transport = Container::getInstance('com_queues')->transport->getTransportKeys()[0] ?? 'default';
 
         yield PingMessage::class => [
-            'from_transport' => $transport
+            //'from_transport' => $transport
         ];
     }
 }

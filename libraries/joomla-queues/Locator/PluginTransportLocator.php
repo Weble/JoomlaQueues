@@ -40,7 +40,7 @@ class PluginTransportLocator implements SendersLocatorInterface, ContainerInterf
 
     public function __construct()
     {
-        PluginHelper::importPlugin('queue-transport');
+        PluginHelper::importPlugin('queue');
         $results = Factory::$application->triggerEvent('onGetQueueTransports', []);
 
         if (!count($results)) {
@@ -92,11 +92,16 @@ class PluginTransportLocator implements SendersLocatorInterface, ContainerInterf
     {
         $seen = [];
 
+
+
         foreach (HandlersLocator::listTypes($envelope) as $type) {
+            $className = $this->transportsMap['*'];
+            yield $className => $this->classMap[$className];
+
             foreach ($this->classMap[$type] ?? [] as $senderClass) {
                 if (!\in_array($senderClass, $seen, true)) {
                     if (!class_exists($senderClass)) {
-                        throw new RuntimeException(sprintf('Invalid senders configuration: sender "%s" is not in the senders locator.', $senderAlias));
+                        throw new RuntimeException(sprintf('Invalid senders configuration: sender "%s" is not in the senders locator.', $senderClass));
                     }
 
                     $seen[] = $senderClass;
