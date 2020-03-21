@@ -4,11 +4,13 @@ use Doctrine\DBAL\DriverManager;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Messenger\EventListener\SendFailedMessageToFailureTransportListener;
 use Symfony\Component\Messenger\MessageBus;
 use Symfony\Component\Messenger\Middleware\AddBusNameStampMiddleware;
 use Symfony\Component\Messenger\Middleware\DispatchAfterCurrentBusMiddleware;
 use Symfony\Component\Messenger\Middleware\FailedMessageProcessingMiddleware;
 use Symfony\Component\Messenger\Middleware\HandleMessageMiddleware;
+use Symfony\Component\Messenger\Middleware\RejectRedeliveredMessageMiddleware;
 use Symfony\Component\Messenger\Middleware\SendMessageMiddleware;
 use Symfony\Component\Messenger\TraceableMessageBus;
 use Symfony\Component\Messenger\Transport\Doctrine\Connection;
@@ -16,6 +18,8 @@ use Symfony\Component\Messenger\Transport\Doctrine\DoctrineTransport;
 use Symfony\Component\Messenger\Transport\Serialization\PhpSerializer;
 use Weble\JoomlaQueues\Locator\PluginHandlerLocator;
 use Weble\JoomlaQueues\Locator\PluginTransportLocator;
+use Symfony\Component\Messenger\EventListener\SendFailedMessageForRetryListener;
+use Weble\JoomlaQueues\Locator\RetryStrategyLocator;
 
 defined('_JEXEC') or die;
 
@@ -30,13 +34,32 @@ class PlgQueueDefault extends CMSPlugin
 
     public function onGetQueueBuses()
     {
+        $transportLocator = new PluginTransportLocator();
+        $retryStrategyLocator = new RetryStrategyLocator();
+
+        $dispatcher  = new EventDispatcher();
+        $dispatcher->addSubscriber(
+            new SendFailedMessageToFailureTransportListener(
+                $transportLocator->get('failed')
+            )
+        );
+
+        $dispatcher->addSubscriber(new SendFailedMessageForRetryListener(
+            $transportLocator,
+            $retryStrategyLocator
+        ));
+
         $bus = new TraceableMessageBus(new MessageBus([
             new AddBusNameStampMiddleware('default'),
+            new RejectRedeliveredMessageMiddleware(),
             new DispatchAfterCurrentBusMiddleware(),
             new FailedMessageProcessingMiddleware(),
+
+            // Custom Middlewares should go here
+
             new SendMessageMiddleware(
-                new PluginTransportLocator(),
-                new EventDispatcher()
+                $transportLocator,
+                $dispatcher
             ),
             new HandleMessageMiddleware(
                 new PluginHandlerLocator()
@@ -51,7 +74,8 @@ class PlgQueueDefault extends CMSPlugin
     public function onGetQueueTransports()
     {
         return [
-            'database' => $this->doctrineTransport('default')
+            'database' => $this->doctrineTransport('default'),
+            'failed' => $this->doctrineTransport('failed')
         ];
     }
 

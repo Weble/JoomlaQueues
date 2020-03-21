@@ -8,9 +8,14 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\Command\ConsumeMessagesCommand;
 use Symfony\Component\Messenger\Command\DebugCommand;
+use Symfony\Component\Messenger\Command\FailedMessagesShowCommand;
 use Symfony\Component\Messenger\Command\StopWorkersCommand;
+use Symfony\Component\Messenger\EventListener\SendFailedMessageForRetryListener;
+use Symfony\Component\Messenger\EventListener\SendFailedMessageToFailureTransportListener;
 use Weble\JoomlaQueues\Command\PingQueueCommand;
+use Weble\JoomlaQueues\Command\ThrowErrorCommand;
 use Weble\JoomlaQueues\Locator\PluginTransportLocator;
+use Weble\JoomlaQueues\Locator\RetryStrategyLocator;
 
 defined('_JEXEC') or die;
 
@@ -40,11 +45,24 @@ class PlgConsoleQueue extends CMSPlugin
     public function onGetConsoleCommands(Application $console)
     {
         $transportLocator = new PluginTransportLocator();
+        $retryStrategyLocator = new RetryStrategyLocator();
+
+        $dispatcher  = new EventDispatcher();
+        $dispatcher->addSubscriber(
+            new SendFailedMessageToFailureTransportListener(
+                $transportLocator->get('failed')
+            )
+        );
+
+        $dispatcher->addSubscriber(new SendFailedMessageForRetryListener(
+            $transportLocator,
+            $retryStrategyLocator
+        ));
 
         $consumeCommand = new ConsumeMessagesCommand(
             $this->container->bus->routableBus(),
             $transportLocator,
-            new EventDispatcher(),
+            $dispatcher,
             Log::createDelegatedLogger(),
             $transportLocator->getReceivers()
         );
@@ -56,7 +74,12 @@ class PlgConsoleQueue extends CMSPlugin
             $consumeCommand,
             new DebugCommand($this->container->queue->handlersLocator()->debugHandlers()),
             new StopWorkersCommand($cache),
-            new PingQueueCommand()
+            new FailedMessagesShowCommand(
+                'failed',
+                $transportLocator->get('failed')
+            ),
+            new PingQueueCommand(),
+            new ThrowErrorCommand()
         ]);
     }
 }

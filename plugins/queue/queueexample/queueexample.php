@@ -1,8 +1,10 @@
 <?php
 
 use Joomla\CMS\Plugin\CMSPlugin;
+use Weble\JoomlaQueues\Handler\ErrorHandler;
 use Weble\JoomlaQueues\Handler\PingHandler;
 use Weble\JoomlaQueues\Handler\SendEmailHandler;
+use Weble\JoomlaQueues\Message\ErrorMessage;
 use Weble\JoomlaQueues\Message\PingMessage;
 use Weble\JoomlaQueues\Message\SendEmailMessage;
 
@@ -24,6 +26,10 @@ class PlgQueueQueueExample extends CMSPlugin
             // This goes to the default transport configured in the admin parameters
             SendEmailMessage::class => [
                 SendEmailHandler::class
+            ],
+            // This should fail and get logged to the failed queue
+            ErrorMessage::class => [
+                ErrorHandler::class
             ],
             // This goes to the specified transports
             // you can get the transports through the container:
