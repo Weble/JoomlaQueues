@@ -15,6 +15,10 @@
     <config>
         <fields name="params">
             <fieldset name="basic">
+                <field name="use_joomla_db" default="1" type="list" label="PLG_QUEUE_DEFAULT_USE_JOOMLA_DB_LBL" description="PLG_QUEUE_DEFAULT_USE_JOOMLA_DB_DESC">
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
             </fieldset>
         </fields>
     </config>

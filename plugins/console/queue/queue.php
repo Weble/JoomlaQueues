@@ -3,11 +3,12 @@
 use FOF30\Container\Container;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Plugin\CMSPlugin;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Application;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\Command\ConsumeMessagesCommand;
 use Symfony\Component\Messenger\Command\DebugCommand;
+use Symfony\Component\Messenger\Command\StopWorkersCommand;
 use Weble\JoomlaQueues\Command\PingQueueCommand;
 use Weble\JoomlaQueues\Locator\PluginTransportLocator;
 
@@ -49,10 +50,12 @@ class PlgConsoleQueue extends CMSPlugin
         );
 
 
+        $cache = new FilesystemAdapter();
 
         $console->addCommands([
             $consumeCommand,
             new DebugCommand($this->container->queue->handlersLocator()->debugHandlers()),
+            new StopWorkersCommand($cache),
             new PingQueueCommand()
         ]);
     }

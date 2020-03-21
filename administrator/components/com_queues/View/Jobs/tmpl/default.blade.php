@@ -18,15 +18,11 @@ $model = $this->getModel();
 @section('browse-table-header')
     {{-- ### HEADER ROW ### --}}
     <tr>
-        {{-- Row select --}}
-        <th width="20">
-            <input type="checkbox" name="id" value="" class="hasTooltip" title="id" onclick="checkall" />
-        </th>
         <th>
             @sortgrid('id')
         </th>
         <th>
-            @lang('COM_QUEUES_MESSAGE_CLASS')
+            @lang('COM_QUEUES_JOB_FIELD_MESSAGE_CLASS')
         </th>
         <th width="20%">
             @sortgrid('queue_name')
@@ -48,10 +44,7 @@ $model = $this->getModel();
     <?php $i = 0; ?>
     @foreach($this->items as $row)
         <tr>
-            {{-- Row select --}}
-            <td>
-                <input type="checkbox" name="cid[]" value="{{ $row->getId() }}" />
-            </td>
+
             <td>
                {{ $row->getId() }}
             </td>

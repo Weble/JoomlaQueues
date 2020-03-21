@@ -1,7 +1,6 @@
 <?php
 
 use Doctrine\DBAL\DriverManager;
-use FOF30\Container\Container;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -26,7 +25,7 @@ class PlgQueueDefault extends CMSPlugin
 {
     protected $app;
     protected $autoloadLanguage = true;
-    protected static $transport;
+    protected static $transports = [];
     protected $tableName = 'queues_jobs';
 
     public function onGetQueueBuses()
@@ -52,13 +51,13 @@ class PlgQueueDefault extends CMSPlugin
     public function onGetQueueTransports()
     {
         return [
-            'database' => $this->doctrineTransport()
+            'database' => $this->doctrineTransport('default')
         ];
     }
 
-    public function doctrineTransport(): DoctrineTransport
+    public function doctrineTransport($queueName = 'default'): DoctrineTransport
     {
-        if (!self::$transport) {
+        if (!isset(self::$transports[$queueName])) {
             $config = Factory::getConfig();
 
             $connectionParams = array(
@@ -75,13 +74,15 @@ class PlgQueueDefault extends CMSPlugin
             $driverConnection = new Connection([
                 'table_name'        => $config->get('dbprefix') . $this->tableName,
                 'redeliver_timeout' => 3600,
-                'auto_setup'        => true, // get setup on install
+                'auto_setup'        => true,
+                'queue_name'        => $queueName
+                // get setup on install
             ], $dbConnection);
 
-            self::$transport = new DoctrineTransport($driverConnection, new PhpSerializer());
+            self::$transports[$queueName] = new DoctrineTransport($driverConnection, new PhpSerializer());
         }
 
-        return self::$transport;
+        return self::$transports[$queueName];
 
     }
 }

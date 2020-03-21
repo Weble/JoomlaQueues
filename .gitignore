@@ -35,6 +35,10 @@
 
 # CUSTOM!
 !administrator/components/com_queues
+!administrator/language/en-GB
+administrator/language/en-GB/*
+!administrator/language/en-GB/en-GB.com_queues.ini
+!administrator/language/en-GB/en-GB.com_queues.sys.ini
 !libraries/joomla-queues
 !libraries/joomla-queues/Command
 libraries/joomla-queues/vendor

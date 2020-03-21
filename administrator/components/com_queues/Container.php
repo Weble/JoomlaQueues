@@ -8,6 +8,8 @@ use Weble\JoomlaQueues\Admin\Service\Queue;
 use Weble\JoomlaQueues\Admin\Service\RoutableBus;
 use Weble\JoomlaQueues\Admin\Service\Transport;
 
+require_once(JPATH_LIBRARIES . '/joomla-queues/vendor/autoload.php');
+
 /**
  * @property-read Queue $queue
  * @property-read Bus $bus

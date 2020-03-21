@@ -21,17 +21,17 @@ class PlgQueueQueueExample extends CMSPlugin
     public function onGetQueueMessages()
     {
         return [
-            // This goes to all the configured transports
+            // This goes to the default transport configured in the admin parameters
             SendEmailMessage::class => [
                 SendEmailHandler::class
             ],
             // This goes to the specified transports
             // you can get the transports through the container:
-            // $this->>container->transport->getTransports(); ['default' => DoctrineTransport]
+            // $this->>container->transport->getTransportsKeys(); ['database']
             PingMessage::class      => [
                 [
-                    'handler'    => PingHandler::class,
-                    // 'transports' => ['database']
+                    'handler' => PingHandler::class,
+                    'transports' => ['database']
                 ]
             ]
         ];

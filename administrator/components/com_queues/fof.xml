@@ -15,9 +15,7 @@
 
     <!-- Component backend options -->
     <backend>
-        <container>
-            <option name="factoryClass">FOF30\Factory\MagicFactory</option>
-        </container>
+
     </backend>
 
     <!-- Component frontend options -->

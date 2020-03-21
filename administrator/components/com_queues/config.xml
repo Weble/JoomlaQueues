@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+    <fieldset
+            name="queues"
+            label="COM_QUEUES_CONFIG_GENERAL"
+            description=""
+            addfieldpath="/administrator/components/com_queues/Field"
+    >
+        <field
+                name="default_transport"
+                label="COM_QUEUES_CONFIG_DEFAULT_TRANSPORT_LBL"
+                description="COM_QUEUES_CONFIG_DEFAULT_TRANSPORT_DESC"
+                default="database"
+                type="queuetransports"
+        />
+    </fieldset>
+    <fieldset
+            name="permissions"
+            label="JCONFIG_PERMISSIONS_LABEL"
+            description="JCONFIG_PERMISSIONS_DESC"
+    >
+        <field
+                name="rules"
+                type="rules"
+                label="JCONFIG_PERMISSIONS_LABEL"
+                filter="rules"
+                validate="rules"
+                component="com_queues"
+                section="component"
+        />
+    </fieldset>
+</config>

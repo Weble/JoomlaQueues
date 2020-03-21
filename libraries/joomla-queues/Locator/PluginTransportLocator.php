@@ -4,6 +4,7 @@
 namespace Weble\JoomlaQueues\Locator;
 
 
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Http\TransportInterface;
 use Joomla\CMS\Plugin\PluginHelper;
@@ -52,17 +53,13 @@ class PluginTransportLocator implements SendersLocatorInterface, ContainerInterf
                 $className = get_class($transportOrConfiguration);
                 $this->classMap[$className] = $transportOrConfiguration;
                 $this->transportsMap[$name] = $className;
-
-                if (!isset($this->transportsMap['*'])) {
-                    $this->transportsMap['*'] = $className;
-                }
             }
         }
     }
 
     public function get($id)
     {
-        $className = $this->transportsMap[$id] ?? $this->transportsMap['*'] ?? null;
+        $className = $this->transportsMap[$id] ?? null;
         if (!$className) {
             return null;
         }
@@ -92,12 +89,7 @@ class PluginTransportLocator implements SendersLocatorInterface, ContainerInterf
     {
         $seen = [];
 
-
-
         foreach (HandlersLocator::listTypes($envelope) as $type) {
-            $className = $this->transportsMap['*'];
-            yield $className => $this->classMap[$className];
-
             foreach ($this->classMap[$type] ?? [] as $senderClass) {
                 if (!\in_array($senderClass, $seen, true)) {
                     if (!class_exists($senderClass)) {
@@ -109,13 +101,20 @@ class PluginTransportLocator implements SendersLocatorInterface, ContainerInterf
                 }
             }
         }
+
+        if (count($seen) > 0) {
+            return;
+        }
+
+        $defaultTransportKey = ComponentHelper::getParams('com_queues')->get('default_transport' , 'database');
+        $defaultTransport = $this->get($defaultTransportKey);
+
+        yield get_class($defaultTransport) => $defaultTransport;
     }
 
     public function getReceivers(): array
     {
         $receivers = $this->transportsMap;
-        unset($receivers['*']);
-
         return array_keys($receivers);
     }
 }
