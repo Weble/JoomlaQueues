@@ -115,6 +115,10 @@ class PluginTransportLocator implements SendersLocatorInterface, ContainerInterf
     public function getReceivers(): array
     {
         $receivers = $this->transportsMap;
+
+        // Remove the failure transport
+        unset($receivers[ComponentHelper::getParams('com_queues')->get('failure_transport' , 'failure')]);
+
         return array_keys($receivers);
     }
 }

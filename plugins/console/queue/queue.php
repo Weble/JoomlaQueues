@@ -1,6 +1,7 @@
 <?php
 
 use FOF30\Container\Container;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -8,6 +9,8 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Messenger\Command\ConsumeMessagesCommand;
 use Symfony\Component\Messenger\Command\DebugCommand;
+use Symfony\Component\Messenger\Command\FailedMessagesRemoveCommand;
+use Symfony\Component\Messenger\Command\FailedMessagesRetryCommand;
 use Symfony\Component\Messenger\Command\FailedMessagesShowCommand;
 use Symfony\Component\Messenger\Command\StopWorkersCommand;
 use Symfony\Component\Messenger\EventListener\SendFailedMessageForRetryListener;
@@ -47,11 +50,14 @@ class PlgConsoleQueue extends CMSPlugin
         $transportLocator = new PluginTransportLocator();
         $retryStrategyLocator = new RetryStrategyLocator();
 
+        $failureTransportName = ComponentHelper::getParams('com_queues')->get('failure_transport', 'failure');
+
+        /** @var \Symfony\Component\Messenger\Transport\Doctrine\DoctrineTransport $failureTransport */
+        $failureTransport = $transportLocator->get($failureTransportName);
+
         $dispatcher  = new EventDispatcher();
         $dispatcher->addSubscriber(
-            new SendFailedMessageToFailureTransportListener(
-                $transportLocator->get('failed')
-            )
+            new SendFailedMessageToFailureTransportListener($failureTransport)
         );
 
         $dispatcher->addSubscriber(new SendFailedMessageForRetryListener(
@@ -67,7 +73,6 @@ class PlgConsoleQueue extends CMSPlugin
             $transportLocator->getReceivers()
         );
 
-
         $cache = new FilesystemAdapter();
 
         $console->addCommands([
@@ -75,8 +80,19 @@ class PlgConsoleQueue extends CMSPlugin
             new DebugCommand($this->container->queue->handlersLocator()->debugHandlers()),
             new StopWorkersCommand($cache),
             new FailedMessagesShowCommand(
-                'failed',
-                $transportLocator->get('failed')
+                $failureTransportName,
+                $failureTransport
+            ),
+            new FailedMessagesRetryCommand(
+                $failureTransportName,
+                $failureTransport,
+                $this->container->bus->routableBus(),
+                $dispatcher,
+                Log::createDelegatedLogger()
+            ),
+            new FailedMessagesRemoveCommand(
+                $failureTransportName,
+                $failureTransport
             ),
             new PingQueueCommand(),
             new ThrowErrorCommand()

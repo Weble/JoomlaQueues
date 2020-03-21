@@ -13,6 +13,13 @@
                 default="database"
                 type="queuetransports"
         />
+        <field
+                name="failure_transport"
+                label="COM_QUEUES_CONFIG_FAILURE_TRANSPORT_LBL"
+                description="COM_QUEUES_CONFIG_FAILURE_TRANSPORT_DESC"
+                default="failure"
+                type="queuetransports"
+        />
     </fieldset>
     <fieldset
             name="permissions"
