@@ -5,7 +5,6 @@ namespace Weble\JoomlaQueues\Admin;
 
 use Weble\JoomlaQueues\Admin\Service\Bus;
 use Weble\JoomlaQueues\Admin\Service\Queue;
-use Weble\JoomlaQueues\Admin\Service\RoutableBus;
 use Weble\JoomlaQueues\Admin\Service\Transport;
 
 require_once(JPATH_LIBRARIES . '/joomla-queues/vendor/autoload.php');
@@ -21,6 +20,12 @@ class Container extends \FOF30\Container\Container
     {
         parent::__construct($values);
 
+        if (!isset($this['transport'])) {
+            $this['transport'] = function (self $c) {
+                return new Transport($c);
+            };
+        }
+
         if (!isset($this['bus'])) {
             $this['bus'] = function (self $c) {
                 return new Bus($c);
@@ -30,12 +35,6 @@ class Container extends \FOF30\Container\Container
         if (!isset($this['queue'])) {
             $this['queue'] = function (self $c) {
                 return new Queue($c);
-            };
-        }
-
-        if (!isset($this['transport'])) {
-            $this['transport'] = function (self $c) {
-                return new Transport($c);
             };
         }
     }

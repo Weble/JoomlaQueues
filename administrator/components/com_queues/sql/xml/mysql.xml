@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema>
+    <!-- Metadata -->
+    <meta>
+        <!-- Supported driver types -->
+        <drivers>
+            <driver>mysql</driver>
+            <driver>mysqli</driver>
+        </drivers>
+    </meta>
+
+    <!-- SQL commands to run on installation and update -->
+    <sql>
+        <!-- Create the #__foobar_profiles table if it's missing -->
+        <action table="#__queues_jobs" canfail="0">
+            <condition type="missing" value=""/>
+            <query><![CDATA[
+CREATE TABLE `#__queues_jobs` (
+`queues_job_id` bigint(16) unsigned NOT NULL AUTO_INCREMENT,
+`bus` varchar(255) DEFAULT NULL,
+`message_id` varchar(255) DEFAULT NULL,
+`message` JSON DEFAULT NULL,
+`status` varchar(255) DEFAULT NULL,
+PRIMARY KEY (`queues_job_id`)
+) DEFAULT CHARACTER SET utf8;
+            ]]></query>
+        </action>
+        <action table="#__queues_jobs" canfail="0">
+            <condition type="missing" value="body"/>
+            <query><![CDATA[
+            ALTER TABLE `#__queues_jobs` CHANGE `message` `body` JSON;
+            ]]></query>
+        </action>
+        <action table="#__queues_jobs" canfail="0">
+            <condition type="missing" value="headers"/>
+            <query><![CDATA[
+            ALTER TABLE `#__queues_jobs` ADD `headers` JSON AFTER `message_id`;
+            ]]></query>
+        </action>
+        <action table="#__queues_jobs" canfail="0">
+            <condition type="missing" value="transport"/>
+            <query><![CDATA[
+            ALTER TABLE `#__queues_jobs` ADD `transport` VARCHAR(255) AFTER `bus`;
+            ]]></query>
+        </action>
+    </sql>
+</schema>

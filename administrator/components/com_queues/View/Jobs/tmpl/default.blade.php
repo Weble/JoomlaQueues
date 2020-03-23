@@ -22,13 +22,13 @@ $model = $this->getModel();
             @sortgrid('id')
         </th>
         <th>
-            @lang('COM_QUEUES_JOB_FIELD_MESSAGE_CLASS')
+            @lang('COM_QUEUES_JOB_FIELD_BUS')
         </th>
         <th width="20%">
-            @sortgrid('queue_name')
+            @lang('COM_QUEUES_JOB_FIELD_TRANSPORT')
         </th>
         <th width="20%">
-            @sortgrid('created_at')
+            @lang('COM_QUEUES_JOB_FIELD_MESSAGE_ID')
         </th>
         <th width="20%">
             @sortgrid('available_at')
@@ -49,13 +49,13 @@ $model = $this->getModel();
                {{ $row->getId() }}
             </td>
             <td>
-                {{ get_class($row->message()->getMessage()) }}
+                {{ $row->bus }}
             </td>
             <td>
-                {{ $row->queue_name }}
+                {{ $row->transport }}
             </td>
             <td>
-                {{ $row->created_at }}
+                {{ $row->message_id }}
             </td>
             <td>
                 {{ $row->available_at }}

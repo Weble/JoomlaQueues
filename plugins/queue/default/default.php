@@ -1,6 +1,9 @@
 <?php
 
 use Joomla\CMS\Plugin\CMSPlugin;
+use Symfony\Component\Messenger\RoutableMessageBus;
+use Symfony\Component\Messenger\Transport\Sync\SyncTransport;
+use Weble\JoomlaQueues\Bus\BusLocator;
 use Weble\JoomlaQueues\Bus\DefaultBusProvider;
 use Weble\JoomlaQueues\Transport\DatabaseTransportProvider;
 
@@ -12,8 +15,6 @@ class PlgQueueDefault extends CMSPlugin
 {
     protected $app;
     protected $autoloadLanguage = true;
-    protected static $transports = [];
-    protected $tableName = 'queues_jobs';
 
     public function onGetQueueBuses()
     {

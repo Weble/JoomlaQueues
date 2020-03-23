@@ -16,7 +16,7 @@ use Weble\JoomlaQueues\Middleware\DoctrineTransactionMiddleware;
 class DatabaseTransportProvider extends TransportProvider
 {
     protected $name = 'database';
-    protected $tableName = 'queues_jobs';
+    protected $tableName = 'queues_messages';
     protected $queueName;
     private $dbConnection;
 

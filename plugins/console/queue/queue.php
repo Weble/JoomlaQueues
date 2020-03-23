@@ -20,6 +20,7 @@ use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnSigtermSignalListener;
 use Weble\JoomlaQueues\Command\PingQueueCommand;
 use Weble\JoomlaQueues\Command\ThrowErrorCommand;
+use Weble\JoomlaQueues\Listener\AddWorkerTimeStampsListener;
 use Weble\JoomlaQueues\Transport\RetryStrategyLocator;
 use Weble\JoomlaQueues\Transport\TransportLocator;
 
