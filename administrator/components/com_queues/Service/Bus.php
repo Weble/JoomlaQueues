@@ -5,7 +5,8 @@ namespace Weble\JoomlaQueues\Admin\Service;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\RoutableMessageBus;
 use Weble\JoomlaQueues\Admin\Container;
-use Weble\JoomlaQueues\Locator\BusLocator;
+use Weble\JoomlaQueues\Bus\BusLocator;
+use Weble\JoomlaQueues\Bus\ProvidesBus;
 
 class Bus
 {
@@ -35,7 +36,7 @@ class Bus
     }
 
     /**
-     * @return MessageBusInterface[]
+     * @return ProvidesBus[]
      */
     public function getBuses(): array
     {

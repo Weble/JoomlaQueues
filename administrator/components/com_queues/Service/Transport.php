@@ -4,7 +4,7 @@ namespace Weble\JoomlaQueues\Admin\Service;
 
 use Joomla\CMS\Http\TransportInterface;
 use Weble\JoomlaQueues\Admin\Container;
-use Weble\JoomlaQueues\Locator\PluginTransportLocator;
+use Weble\JoomlaQueues\Transport\TransportLocator;
 
 class Transport
 {
@@ -12,14 +12,14 @@ class Transport
     protected $container = null;
 
     /**
-     * @var PluginTransportLocator
+     * @var TransportLocator
      */
     private $transportLocator;
 
     public function __construct(Container $container)
     {
         $this->container = $container;
-        $this->transportLocator = new PluginTransportLocator();
+        $this->transportLocator = new TransportLocator();
     }
 
     /**

@@ -1,18 +1,16 @@
 <?php
 
 
-namespace Weble\JoomlaQueues\Locator;
+namespace Weble\JoomlaQueues\Handler;
 
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Plugin\PluginHelper;
-use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 use Symfony\Component\Messenger\Handler\HandlerDescriptor;
-use Symfony\Component\Messenger\Handler\HandlersLocator;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 
-class PluginHandlerLocator extends HandlersLocator
+class HandlersLocator extends \Symfony\Component\Messenger\Handler\HandlersLocator
 {
     /**
      * @var array

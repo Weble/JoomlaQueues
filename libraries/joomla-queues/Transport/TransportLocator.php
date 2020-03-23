@@ -1,18 +1,19 @@
 <?php
 
 
-namespace Weble\JoomlaQueues\Locator;
+namespace Weble\JoomlaQueues\Transport;
 
 
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
-use Joomla\CMS\Http\TransportInterface;
 use Joomla\CMS\Plugin\PluginHelper;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\RuntimeException;
 use Symfony\Component\Messenger\Handler\HandlersLocator;
+use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Component\Messenger\Transport\Sender\SendersLocatorInterface;
+use Symfony\Component\Messenger\Transport\TransportInterface;
 
 /**
  * This class is able to locate the correct transport based on its "name"
@@ -20,24 +21,12 @@ use Symfony\Component\Messenger\Transport\Sender\SendersLocatorInterface;
  *
  * REMEMBER: The transport is both the sender and the receiver!
  */
-class PluginTransportLocator implements SendersLocatorInterface, ContainerInterface
+class TransportLocator implements SendersLocatorInterface, ContainerInterface
 {
     /**
-     * Maps a "name" to a transport class for sending messages
-     * [
-     *      "database" => DoctrineTransport::class
-     * ]
-     * @var array
+     * @var ProvidesTransport[]
      */
-    private $transportsMap = [];
-    /**
-     * Maps a class name to its implementation
-     * [
-     *      DoctrineTransport::class => DoctrineTransport
-     * ]
-     * @var array
-     */
-    private $classMap = [];
+    private $transports;
 
     public function __construct()
     {
@@ -48,28 +37,38 @@ class PluginTransportLocator implements SendersLocatorInterface, ContainerInterf
             return;
         }
 
-        foreach ($results as $pluginIndex => $transports) {
-            foreach ($transports as $name => $transportOrConfiguration) {
-                $className = get_class($transportOrConfiguration);
-                $this->classMap[$className] = $transportOrConfiguration;
-                $this->transportsMap[$name] = $className;
+        /**
+         * @var int $pluginIndex
+         * @var ProvidesTransport[] $transportProviders
+         */
+        foreach ($results as $pluginIndex => $transportProviders) {
+            foreach ($transportProviders as $transportProvider) {
+                $this->transports[$transportProvider->getKey()] = $transportProvider;
             }
         }
     }
 
+    /**
+     * @param string $id
+     * @return ProvidesTransport
+     */
+    public function getProvider($id)
+    {
+        return $this->transports[$id] ?? null;
+    }
+
+    /**
+     * @param string $id
+     * @return TransportInterface
+     */
     public function get($id)
     {
-        $className = $this->transportsMap[$id] ?? null;
-        if (!$className) {
-            return null;
-        }
-
-        return $this->classMap[$className] ?? null;
+        return $this->transports[$id] ? $this->transports[$id]->transport() : null;
     }
 
     public function has($id)
     {
-        return isset($this->transportsMap[$id]);
+        return isset($this->transports[$id]);
     }
 
     /**
@@ -77,9 +76,9 @@ class PluginTransportLocator implements SendersLocatorInterface, ContainerInterf
      */
     public function getTransports(): array
     {
-        return array_map(function($className) {
-            return $this->classMap[$className];
-        }, $this->transportsMap);
+        return array_map(function(ProvidesTransport $transportProvider){
+            return $transportProvider->transport();
+        }, $this->transports);
     }
 
     /**
@@ -106,19 +105,17 @@ class PluginTransportLocator implements SendersLocatorInterface, ContainerInterf
             return;
         }
 
-        $defaultTransportKey = ComponentHelper::getParams('com_queues')->get('default_transport' , 'database');
+        $defaultTransportKey = ComponentHelper::getParams('com_queues')->get('default_transport', 'database');
         $defaultTransport = $this->get($defaultTransportKey);
 
         yield get_class($defaultTransport) => $defaultTransport;
     }
 
+    /**
+     * @return ReceiverInterface[]
+     */
     public function getReceivers(): array
     {
-        $receivers = $this->transportsMap;
-
-        // Remove the failure transport
-        unset($receivers[ComponentHelper::getParams('com_queues')->get('failure_transport' , 'failure')]);
-
-        return array_keys($receivers);
+        return array_keys($this->getTransports());
     }
 }

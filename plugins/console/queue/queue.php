@@ -17,8 +17,8 @@ use Symfony\Component\Messenger\EventListener\SendFailedMessageForRetryListener;
 use Symfony\Component\Messenger\EventListener\SendFailedMessageToFailureTransportListener;
 use Weble\JoomlaQueues\Command\PingQueueCommand;
 use Weble\JoomlaQueues\Command\ThrowErrorCommand;
-use Weble\JoomlaQueues\Locator\PluginTransportLocator;
-use Weble\JoomlaQueues\Locator\RetryStrategyLocator;
+use Weble\JoomlaQueues\Transport\RetryStrategyLocator;
+use Weble\JoomlaQueues\Transport\TransportLocator;
 
 defined('_JEXEC') or die;
 
@@ -47,8 +47,8 @@ class PlgConsoleQueue extends CMSPlugin
 
     public function onGetConsoleCommands(Application $console)
     {
-        $transportLocator = new PluginTransportLocator();
-        $retryStrategyLocator = new RetryStrategyLocator();
+        $transportLocator = new TransportLocator();
+        $retryStrategyLocator = new RetryStrategyLocator($transportLocator);
 
         $failureTransportName = ComponentHelper::getParams('com_queues')->get('failure_transport', 'failure');
 

@@ -7,6 +7,13 @@
             addfieldpath="/administrator/components/com_queues/Field"
     >
         <field
+                name="default_bus"
+                label="COM_QUEUES_CONFIG_DEFAULT_BUS_LBL"
+                description="COM_QUEUES_CONFIG_DEFAULT_BUS_DESC"
+                default="default"
+                type="queuebuses"
+        />
+        <field
                 name="default_transport"
                 label="COM_QUEUES_CONFIG_DEFAULT_TRANSPORT_LBL"
                 description="COM_QUEUES_CONFIG_DEFAULT_TRANSPORT_DESC"
