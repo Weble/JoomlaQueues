@@ -18,7 +18,7 @@ class PingHandler implements MessageHandlerInterface, MessageSubscriberInterface
     public static function getHandledMessages(): iterable
     {
         yield PingMessage::class => [
-            //'from_transport' => $transport
+            //'from_transport' => 'default'
         ];
     }
 }

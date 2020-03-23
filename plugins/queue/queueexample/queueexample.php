@@ -37,7 +37,7 @@ class PlgQueueQueueExample extends CMSPlugin
             PingMessage::class      => [
                 [
                     'handler' => PingHandler::class,
-                    'transports' => ['database']
+                    'transports' => ['default']
                 ]
             ]
         ];

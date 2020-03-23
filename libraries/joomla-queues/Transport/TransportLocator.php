@@ -26,26 +26,17 @@ class TransportLocator implements SendersLocatorInterface, ContainerInterface
     /**
      * @var ProvidesTransport[]
      */
-    private $transports;
+    private $transports = [];
+    /**
+     * @var array
+     */
+    private $senders = [];
 
     public function __construct()
     {
         PluginHelper::importPlugin('queue');
-        $results = Factory::$application->triggerEvent('onGetQueueTransports', []);
-
-        if (!count($results)) {
-            return;
-        }
-
-        /**
-         * @var int $pluginIndex
-         * @var ProvidesTransport[] $transportProviders
-         */
-        foreach ($results as $pluginIndex => $transportProviders) {
-            foreach ($transportProviders as $transportProvider) {
-                $this->transports[$transportProvider->getKey()] = $transportProvider;
-            }
-        }
+        $this->loadTransports();
+        $this->loadSenders();
     }
 
     /**
@@ -76,7 +67,7 @@ class TransportLocator implements SendersLocatorInterface, ContainerInterface
      */
     public function getTransports(): array
     {
-        return array_map(function(ProvidesTransport $transportProvider){
+        return array_map(function (ProvidesTransport $transportProvider) {
             return $transportProvider->transport();
         }, $this->transports);
     }
@@ -89,15 +80,18 @@ class TransportLocator implements SendersLocatorInterface, ContainerInterface
         $seen = [];
 
         foreach (HandlersLocator::listTypes($envelope) as $type) {
-            foreach ($this->classMap[$type] ?? [] as $senderClass) {
-                if (!\in_array($senderClass, $seen, true)) {
-                    if (!class_exists($senderClass)) {
-                        throw new RuntimeException(sprintf('Invalid senders configuration: sender "%s" is not in the senders locator.', $senderClass));
-                    }
-
-                    $seen[] = $senderClass;
-                    yield $senderClass => $this->classMap[$senderClass];
+            foreach ($this->senders[$type] ?? [] as $transport) {
+                if (\in_array($transport, $seen, true)) {
+                    continue;
                 }
+
+                if (!$this->has($transport)) {
+                    throw new RuntimeException(sprintf('Invalid senders configuration: sender "%s" is not registered.', $transport));
+                }
+
+                $seen[] = $transport;
+                $transport = $this->get($transport);
+                yield get_class($transport) => $transport;
             }
         }
 
@@ -106,8 +100,12 @@ class TransportLocator implements SendersLocatorInterface, ContainerInterface
         }
 
         $defaultTransportKey = ComponentHelper::getParams('com_queues')->get('default_transport', 'database');
-        $defaultTransport = $this->get($defaultTransportKey);
 
+        if (\in_array($defaultTransportKey, $seen, true)) {
+            return;
+        }
+
+        $defaultTransport = $this->get($defaultTransportKey);
         yield get_class($defaultTransport) => $defaultTransport;
     }
 
@@ -117,5 +115,40 @@ class TransportLocator implements SendersLocatorInterface, ContainerInterface
     public function getReceivers(): array
     {
         return array_keys($this->getTransports());
+    }
+
+    private function loadTransports(): void
+    {
+        $results = Factory::$application->triggerEvent('onGetQueueTransports', []);
+
+        /**
+         * @var int $pluginIndex
+         * @var ProvidesTransport[] $transportProviders
+         */
+        foreach ($results as $pluginIndex => $transportProviders) {
+            foreach ($transportProviders as $transportProvider) {
+                $this->transports[$transportProvider->getKey()] = $transportProvider;
+            }
+        }
+    }
+
+    private function loadSenders(): void
+    {
+        $results = Factory::$application->triggerEvent('onGetQueueMessages', []);
+        foreach ($results as $pluginIndex => $messages) {
+            foreach ($messages as $messageClass => $senderConfigurations) {
+                foreach ($senderConfigurations as $senderConfiguration) {
+                    if (!is_array($senderConfiguration)) {
+                        continue;
+                    }
+
+                    if (!isset($this->senders[$messageClass])) {
+                        $this->senders[$messageClass] = [];
+                    }
+
+                    $this->senders[$messageClass] = array_merge($this->senders[$messageClass], $senderConfiguration['transports'] ?? []);
+                }
+            }
+        }
     }
 }

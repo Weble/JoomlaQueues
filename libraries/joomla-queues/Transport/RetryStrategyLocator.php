@@ -25,7 +25,7 @@ class RetryStrategyLocator implements ContainerInterface
     public function get($id)
     {
         if ($this->transportLocator->has($id)) {
-            return $this->transportLocator->getProvider($id);
+            return $this->transportLocator->getProvider($id)->retryStrategy();
         }
 
         $config = ComponentHelper::getParams('com_queues');
