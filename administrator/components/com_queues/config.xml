@@ -22,6 +22,40 @@
         />
     </fieldset>
     <fieldset
+            name="retry_strategy"
+            label="COM_QUEUES_CONFIG_RETRY_STRATEGY"
+            description=""
+    >
+        <field
+                name="max_retries"
+                label="COM_QUEUES_CONFIG_MAX_RETRIES_LBL"
+                description="COM_QUEUES_CONFIG_MAX_RETRIES_DESC"
+                default="3"
+                type="number"
+        />
+        <field
+                name="retry_delay"
+                label="COM_QUEUES_CONFIG_RETRY_DELAY_LBL"
+                description="COM_QUEUES_CONFIG_RETRY_DELAY_DESC"
+                default="1000"
+                type="number"
+        />
+        <field
+                name="retry_multiplier"
+                label="COM_QUEUES_CONFIG_RETRY_MULTIPLIER_LBL"
+                description="COM_QUEUES_CONFIG_RETRY_MULTIPLIER_DESC"
+                default="1"
+                type="number"
+        />
+        <field
+                name="max_retry_delay"
+                label="COM_QUEUES_CONFIG_MAX_RETRY_DELAY_LBL"
+                description="COM_QUEUES_CONFIG_MAX_RETRY_DELAY_DESC"
+                default="0"
+                type="number"
+        />
+    </fieldset>
+    <fieldset
             name="permissions"
             label="JCONFIG_PERMISSIONS_LABEL"
             description="JCONFIG_PERMISSIONS_DESC"
