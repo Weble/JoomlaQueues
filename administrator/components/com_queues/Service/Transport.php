@@ -2,7 +2,7 @@
 
 namespace Weble\JoomlaQueues\Admin\Service;
 
-use Joomla\CMS\Http\TransportInterface;
+use Symfony\Component\Messenger\Transport\TransportInterface;
 use Weble\JoomlaQueues\Admin\Container;
 use Weble\JoomlaQueues\Transport\TransportLocator;
 
