@@ -10,7 +10,6 @@ class ErrorHandler implements MessageHandlerInterface
 {
     public function __invoke(ErrorMessage $message)
     {
-        var_dump('here');
         throw new \Exception('Testing Failed Jobs');
     }
 }

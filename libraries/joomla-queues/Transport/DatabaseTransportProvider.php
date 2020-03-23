@@ -55,6 +55,6 @@ class DatabaseTransportProvider extends TransportProvider
             // get setup on install
         ], $dbConnection);
 
-        return new DoctrineTransport($driverConnection, new PhpSerializer());
+        return new DoctrineTransport($driverConnection, $this->serializer());
     }
 }

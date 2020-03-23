@@ -58,7 +58,7 @@ abstract class BusProvider implements ProvidesBus
         $custom = $this->customMiddlewares();
         $after = $this->afterMiddlewares();
 
-        return $before + $custom + $after;
+        return array_merge($before, $custom, $after);
     }
 
     /**
