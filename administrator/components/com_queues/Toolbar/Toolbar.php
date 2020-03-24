@@ -6,6 +6,21 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
 
 class Toolbar extends \FOF30\Toolbar\Toolbar
 {
+    public function onCPanels()
+    {
+        $this->renderSubmenu();
+
+        // Setup
+        $option = $this->container->componentName;
+        $view = $this->container->input->getCmd('view', 'cpanel');
+
+        // Set toolbar title
+        $subtitle_key = strtoupper($option . '_TITLE_' . $view);
+        \JToolBarHelper::title(\JText::_(strtoupper($option)) . ': ' . \JText::_($subtitle_key), str_replace('com_', '', $option));
+
+        ToolbarHelper::preferences('com_queues', '500', '660');
+    }
+
     public function onBrowse()
     {
         // On frontend, buttons must be added specifically
@@ -17,6 +32,8 @@ class Toolbar extends \FOF30\Toolbar\Toolbar
             return;
         }
 
+        $this->renderSubmenu();
+
         // Setup
         $option = $this->container->componentName;
         $view = $this->container->input->getCmd('view', 'cpanel');
@@ -26,5 +43,13 @@ class Toolbar extends \FOF30\Toolbar\Toolbar
         \JToolBarHelper::title(\JText::_(strtoupper($option)) . ': ' . \JText::_($subtitle_key), str_replace('com_', '', $option));
 
         ToolbarHelper::preferences('com_queues', '500', '660');
+    }
+
+    protected function getMyViews()
+    {
+        return [
+            'CPanels',
+            'JobsJ'
+        ];
     }
 }

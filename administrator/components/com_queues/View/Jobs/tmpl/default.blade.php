@@ -21,10 +21,10 @@ $model = $this->getModel();
         <th>
             @sortgrid('id')
         </th>
-        <th width="20%">
+        <th>
             @lang('COM_QUEUES_JOB_FIELD_BUS')
         </th>
-        <th width="20%">
+        <th>
             @lang('COM_QUEUES_JOB_FIELD_TRANSPORT')
         </th>
         <th width="20%">

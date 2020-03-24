@@ -9,7 +9,7 @@
 
         <!-- Dispatcher configuration -->
         <dispatcher>
-            <option name="defaultView">Jobs</option>
+            <option name="defaultView">Cpanels</option>
         </dispatcher>
     </common>
 

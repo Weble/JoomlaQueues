@@ -42,7 +42,7 @@ class Jobs extends DataModel
                     $this->whereRaw('handled_on IS NOT NULL');
                     break;
                 case 'processing':
-                    $this->whereRaw('received_on IS_NOT NULL');
+                    $this->whereRaw('received_on IS NOT NULL');
                     $this->whereRaw('last_failed_on IS NULL');
                     $this->whereRaw('handled_on IS NULL');
                     break;
