@@ -1,9 +1,6 @@
 <?php
 
 use Joomla\CMS\Plugin\CMSPlugin;
-use Symfony\Component\Messenger\RoutableMessageBus;
-use Symfony\Component\Messenger\Transport\Sync\SyncTransport;
-use Weble\JoomlaQueues\Bus\BusLocator;
 use Weble\JoomlaQueues\Bus\DefaultBusProvider;
 use Weble\JoomlaQueues\Transport\DatabaseTransportProvider;
 

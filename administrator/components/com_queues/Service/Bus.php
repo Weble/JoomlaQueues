@@ -2,11 +2,11 @@
 
 namespace Weble\JoomlaQueues\Admin\Service;
 
+use Joomla\Registry\Registry;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\RoutableMessageBus;
 use Weble\JoomlaQueues\Admin\Container;
 use Weble\JoomlaQueues\Bus\BusLocator;
-use Weble\JoomlaQueues\Bus\ProvidesBus;
 
 class Bus
 {
@@ -28,7 +28,9 @@ class Bus
     public function __construct(Container $container)
     {
         $this->container = $container;
-        $this->busLocator = new BusLocator();
+        $this->busLocator = new BusLocator(
+            $this->container->queueConfig->buses()
+        );
         $this->routableBus = new RoutableMessageBus(
             $this->busLocator,
             $this->defaultBus()
@@ -36,16 +38,11 @@ class Bus
     }
 
     /**
-     * @return ProvidesBus[]
+     * @return MessageBusInterface[]
      */
-    public function getBuses(): array
+    public function getBuses(): Registry
     {
-        return $this->busLocator->all();
-    }
-
-    public function getBusIds(): array
-    {
-        return array_keys($this->getBuses());
+        return $this->busLocator->getBuses();
     }
 
     public function getBus(?string $busId = null): MessageBusInterface

@@ -43,5 +43,29 @@ PRIMARY KEY (`queues_job_id`)
             ALTER TABLE `#__queues_jobs` ADD `transport` VARCHAR(255) AFTER `bus`;
             ]]></query>
         </action>
+        <action table="#__queues_jobs" canfail="0">
+            <condition type="missing" value="sent_on"/>
+            <query><![CDATA[
+            ALTER TABLE `#__queues_jobs` ADD `sent_on` DATETIME NULL AFTER `body`;
+            ]]></query>
+        </action>
+        <action table="#__queues_jobs" canfail="0">
+            <condition type="missing" value="received_on"/>
+            <query><![CDATA[
+            ALTER TABLE `#__queues_jobs` ADD `received_on` DATETIME NULL AFTER `body`;
+            ]]></query>
+        </action>
+        <action table="#__queues_jobs" canfail="0">
+            <condition type="missing" value="handled_on"/>
+            <query><![CDATA[
+            ALTER TABLE `#__queues_jobs` ADD `handled_on` DATETIME NULL AFTER `body`;
+            ]]></query>
+        </action>
+        <action table="#__queues_jobs" canfail="0">
+            <condition type="missing" value="last_failed_on"/>
+            <query><![CDATA[
+            ALTER TABLE `#__queues_jobs` ADD `last_failed_on` DATETIME NULL AFTER `body`;
+            ]]></query>
+        </action>
     </sql>
 </schema>

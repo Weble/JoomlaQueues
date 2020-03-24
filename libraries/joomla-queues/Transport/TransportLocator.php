@@ -5,17 +5,15 @@ namespace Weble\JoomlaQueues\Transport;
 
 
 use Joomla\CMS\Component\ComponentHelper;
-use Joomla\CMS\Factory;
-use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\Registry\Registry;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Exception\RuntimeException;
+use Symfony\Component\Messenger\Handler\HandlerDescriptor;
 use Symfony\Component\Messenger\Handler\HandlersLocator;
 use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Component\Messenger\Transport\Sender\SendersLocatorInterface;
-use Symfony\Component\Messenger\Transport\Sync\SyncTransport;
 use Symfony\Component\Messenger\Transport\TransportInterface;
-use Weble\JoomlaQueues\Admin\Container;
 
 /**
  * This class is able to locate the correct transport based on its "name"
@@ -26,19 +24,18 @@ use Weble\JoomlaQueues\Admin\Container;
 class TransportLocator implements SendersLocatorInterface, ContainerInterface
 {
     /**
-     * @var ProvidesTransport[]
+     * @var Registry|ProvidesTransport[]
      */
-    private $transports = [];
+    private $transports;
     /**
      * @var array
      */
     private $senders = [];
 
-    public function __construct()
+    public function __construct(Registry $transports, Registry $messageHandlers)
     {
-        PluginHelper::importPlugin('queue');
-        $this->loadTransports();
-        $this->loadSenders();
+        $this->transports = $transports;
+        $this->loadSenders($messageHandlers);
     }
 
     /**
@@ -53,7 +50,7 @@ class TransportLocator implements SendersLocatorInterface, ContainerInterface
     /**
      * @return ProvidesTransport[]
      */
-    public function getProviders(): array
+    public function getProviders(): Registry
     {
         return $this->transports;
     }
@@ -64,12 +61,12 @@ class TransportLocator implements SendersLocatorInterface, ContainerInterface
      */
     public function get($id): ?TransportInterface
     {
-        return $this->transports[$id] ? $this->transports[$id]->transport() : null;
+        return $this->has($id) ? $this->getProvider($id)->transport() : null;
     }
 
     public function has($id)
     {
-        return isset($this->transports[$id]);
+        return isset($this->getTransports()[$id]);
     }
 
     /**
@@ -77,9 +74,13 @@ class TransportLocator implements SendersLocatorInterface, ContainerInterface
      */
     public function getTransports(): array
     {
-        return array_map(function (ProvidesTransport $transportProvider) {
-            return $transportProvider->transport();
-        }, $this->transports);
+        $transports = [];
+        /** @var ProvidesTransport $transportProvider */
+        foreach ($this->getProviders() as $transportProvider) {
+            $transports[$transportProvider->getKey()] = $transportProvider->transport();
+        }
+
+        return $transports;
     }
 
     /**
@@ -127,37 +128,16 @@ class TransportLocator implements SendersLocatorInterface, ContainerInterface
         return array_keys($this->getTransports());
     }
 
-    private function loadTransports(): void
+    private function loadSenders(Registry $messageHandlers): void
     {
-        $results = Factory::$application->triggerEvent('onGetQueueTransports', []);
-
-        /**
-         * @var int $pluginIndex
-         * @var ProvidesTransport[] $transportProviders
-         */
-        foreach ($results as $pluginIndex => $transportProviders) {
-            foreach ($transportProviders as $transportProvider) {
-                $this->transports[$transportProvider->getKey()] = $transportProvider;
-            }
-        }
-    }
-
-    private function loadSenders(): void
-    {
-        $results = Factory::$application->triggerEvent('onGetQueueMessages', []);
-        foreach ($results as $pluginIndex => $messages) {
-            foreach ($messages as $messageClass => $senderConfigurations) {
-                foreach ($senderConfigurations as $senderConfiguration) {
-                    if (!is_array($senderConfiguration)) {
-                        continue;
-                    }
-
-                    if (!isset($this->senders[$messageClass])) {
-                        $this->senders[$messageClass] = [];
-                    }
-
-                    $this->senders[$messageClass] = array_merge($this->senders[$messageClass], $senderConfiguration['transports'] ?? []);
+        foreach ($messageHandlers as $messageClass => $handlerDescriptors) {
+            /** @var HandlerDescriptor $handlerDescriptor */
+            foreach ($handlerDescriptors as $handlerDescriptor) {
+                if (!isset($this->senders[$messageClass])) {
+                    $this->senders[$messageClass] = [];
                 }
+
+                $this->senders[$messageClass] = array_merge($this->senders[$messageClass], (array)($handlerDescriptor->getOption('transports')) ?: []);
             }
         }
     }

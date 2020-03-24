@@ -22,22 +22,25 @@ class PlgQueueQueueExample extends CMSPlugin
      */
     public function onGetQueueMessages()
     {
+        $transports = $this->params->get('ping_message_transports', null);
+
         return [
             // This goes to the default transport configured in the admin parameters
             SendEmailMessage::class => [
                 SendEmailHandler::class
             ],
             // This should fail and get logged to the failed queue
-            ErrorMessage::class => [
+            ErrorMessage::class     => [
                 ErrorHandler::class
             ],
             // This goes to the specified transports
             // you can get the transports through the container:
-            // $this->>container->transport->getTransportsKeys(); ['database']
+            // $container->transport->getTransportsKeys(); ['database']
             PingMessage::class      => [
                 [
-                    'handler' => PingHandler::class,
-                    'transports' => ['default']
+                    'handler'    => PingHandler::class,
+                    'transports' => $transports
+                    // 'method' => 'otherMethod'
                 ]
             ]
         ];
@@ -59,7 +62,7 @@ class PlgQueueQueueExample extends CMSPlugin
                 "handles" => [
                     SendEmailMessage::class
                 ],
-                // "bus" => Container::getInstance('com_queues')->defaultBus->getName(),
+                // "bus" => Container::getInstance('com_queues')->bus->getName(),
                 // "from_transport" => 'default' ,
                 // "method" => "someOtherHandlerClassMethodInsteadOfInvoke",
                 // "priority" => 0

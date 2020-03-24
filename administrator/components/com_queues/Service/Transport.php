@@ -11,7 +11,7 @@ use Weble\JoomlaQueues\Transport\TransportLocator;
 class Transport
 {
     /** @var  Container  The container we belong to */
-    protected $container = null;
+    protected $container;
 
     /**
      * @var TransportLocator
@@ -25,7 +25,10 @@ class Transport
     public function __construct(Container $container)
     {
         $this->container = $container;
-        $this->transportLocator = new TransportLocator();
+        $this->transportLocator = new TransportLocator(
+            $this->container->queueConfig->transportProviders(),
+            $this->container->queueConfig->messageHandlers()
+        );
         $this->retryStrategyLocator = new RetryStrategyLocator($this->transportLocator);
     }
 
@@ -76,6 +79,6 @@ class Transport
 
     public function failureTransport(): TransportInterface
     {
-        return $this->transportLocator->get($this->failureTransportName());
+        return $this->getTransport($this->failureTransportName());
     }
 }

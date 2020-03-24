@@ -4,7 +4,7 @@
 namespace Weble\JoomlaQueues\Stamp;
 
 
-use Symfony\Component\Messenger\Stamp\NonSendableStampInterface;
+use Joomla\CMS\Date\Date;
 use Symfony\Component\Messenger\Stamp\StampInterface;
 
 abstract class TimeStamp implements StampInterface
@@ -19,8 +19,8 @@ abstract class TimeStamp implements StampInterface
         $this->time = new \DateTimeImmutable();
     }
 
-    public function getTime(): \DateTimeImmutable
+    public function getTime(): Date
     {
-        return $this->time;
+        return Date::getInstance($this->time->getTimestamp());
     }
 }

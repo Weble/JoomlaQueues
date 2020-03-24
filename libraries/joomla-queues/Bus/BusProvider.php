@@ -2,6 +2,7 @@
 
 namespace Weble\JoomlaQueues\Bus;
 
+use FOF30\Container\Container;
 use FOF30\Model\Exception\CannotGetName;
 use Joomla\CMS\Application\ApplicationHelper;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -13,15 +14,12 @@ use Symfony\Component\Messenger\Middleware\HandleMessageMiddleware;
 use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
 use Symfony\Component\Messenger\Middleware\RejectRedeliveredMessageMiddleware;
 use Symfony\Component\Messenger\Middleware\SendMessageMiddleware;
-use Symfony\Component\Messenger\Stamp\ReceivedStamp;
-use Weble\JoomlaQueues\Handler\HandlersLocator;
 use Weble\JoomlaQueues\Middleware\AddFailureTimeStampMiddleware;
 use Weble\JoomlaQueues\Middleware\AddTimeStampMiddleware;
 use Weble\JoomlaQueues\Middleware\LogHandledMiddleware;
 use Weble\JoomlaQueues\Stamp\HandledTimeStamp;
 use Weble\JoomlaQueues\Stamp\ReceivedTimeStamp;
 use Weble\JoomlaQueues\Stamp\SentTimeStamp;
-use Weble\JoomlaQueues\Transport\TransportLocator;
 
 abstract class BusProvider implements ProvidesBus
 {
@@ -29,6 +27,15 @@ abstract class BusProvider implements ProvidesBus
     protected $name;
     /** @var string */
     protected $key;
+    /**
+     * @var \Weble\JoomlaQueues\Admin\Container;
+     */
+    protected $container;
+
+    public function __construct()
+    {
+        $this->container = Container::getInstance('com_queues', [], 'admin');
+    }
 
     public function getName(): string
     {
@@ -95,18 +102,17 @@ abstract class BusProvider implements ProvidesBus
      */
     protected function afterMiddlewares(): array
     {
-        $transportLocator = new TransportLocator();
-        $dispatcher = new EventDispatcher();
+        $transportLocator = $this->container->transport->locator();
 
         return [
             new AddTimeStampMiddleware(SentTimeStamp::class),
             new SendMessageMiddleware(
                 $transportLocator,
-                $dispatcher
+                new EventDispatcher()
             ),
             new AddTimeStampMiddleware(ReceivedTimeStamp::class),
             new HandleMessageMiddleware(
-                new HandlersLocator()
+                $this->container->handler->locator()
             ),
             new AddTimeStampMiddleware(HandledTimeStamp::class),
             new LogHandledMiddleware()

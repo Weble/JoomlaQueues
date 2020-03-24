@@ -2,8 +2,7 @@
 
 namespace Weble\JoomlaQueues\Bus;
 
-use Joomla\CMS\Factory;
-use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\Registry\Registry;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -12,41 +11,24 @@ class BusLocator implements ContainerInterface
     /**
      * @var BusProvider[]
      */
-    private $buses = [];
+    private $buses;
 
-    public function __construct()
+    public function __construct(Registry $buses)
     {
-        PluginHelper::importPlugin('queue');
-        $results = Factory::getApplication()->triggerEvent('onGetQueueBuses');
+        $this->buses = $buses;
+    }
 
-        /**
-         * @var $busProviders BusProvider[]
-         */
-        foreach ($results as $pluginIndex => $busProviders) {
-            /**
-             * @var $bus BusProvider
-             */
-            foreach ($busProviders as $busName => $bus) {
-                $this->buses[$bus->getKey()] = $bus;
-            }
+    /**
+     * @return MessageBusInterface[]
+     */
+    public function getBuses(): Registry
+    {
+        $buses = [];
+        foreach ($this->buses as $busProvider) {
+            $buses[$busProvider->getKey()] = $busProvider->bus();
         }
-    }
 
-    /**
-     * @return BusProvider[]
-     */
-    public function all(): array
-    {
-        return $this->buses;
-    }
-
-    /**
-     * @param string $id
-     * @return BusProvider|null
-     */
-    public function getProvider($id): ?BusProvider
-    {
-        return $this->buses[$id] ?? null;
+        return $buses;
     }
 
     /**
@@ -55,7 +37,7 @@ class BusLocator implements ContainerInterface
      */
     public function get($id): ?MessageBusInterface
     {
-        return $this->buses[$id] ? $this->buses[$id]->bus() : null;
+        return $this->has($id) ? $this->buses->get($id)->bus() : null ;
     }
 
     /**
@@ -64,6 +46,6 @@ class BusLocator implements ContainerInterface
      */
     public function has($id): bool
     {
-        return isset($this->buses[$id]);
+        return $this->buses->exists($id);
     }
 }

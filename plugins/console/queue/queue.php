@@ -17,9 +17,9 @@ use Symfony\Component\Messenger\EventListener\SendFailedMessageForRetryListener;
 use Symfony\Component\Messenger\EventListener\SendFailedMessageToFailureTransportListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnSigtermSignalListener;
-use Symfony\Component\Messenger\Transport\TransportInterface;
 use Weble\JoomlaQueues\Command\PingQueueCommand;
 use Weble\JoomlaQueues\Command\ThrowErrorCommand;
+use Weble\JoomlaQueues\Listener\LogFailedMessageListener;
 
 require_once(JPATH_LIBRARIES . '/joomla-queues/bootstrap.php');
 
@@ -55,7 +55,7 @@ class PlgConsoleQueue extends CMSPlugin
                 $logger,
                 $this->container->transport->locator()->getReceivers()
             ),
-            new DebugCommand($this->container->queue->handlersLocator()->debugHandlers()),
+            new DebugCommand($this->container->queueConfig->debugHandlers()),
             new StopWorkersCommand($stopWorkerCache),
             new FailedMessagesShowCommand(
                 $this->container->transport->failureTransportName(),
@@ -82,7 +82,15 @@ class PlgConsoleQueue extends CMSPlugin
         // Attach Listeners to events
         $dispatcher = new EventDispatcher();
         $dispatcher->addSubscriber(
-            new SendFailedMessageToFailureTransportListener($this->container->transport->failureTransport())
+            new LogFailedMessageListener(
+                $this->container,
+                $this->container->transport->failureTransport()
+            )
+        );
+        $dispatcher->addSubscriber(
+            new SendFailedMessageToFailureTransportListener(
+                $this->container->transport->failureTransport()
+            )
         );
         $dispatcher->addSubscriber(
             new SendFailedMessageForRetryListener(
