@@ -6,21 +6,11 @@ use FOF30\Model\Exception\CannotGetName;
 use Joomla\CMS\Application\ApplicationHelper;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\Registry\Registry;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\Messenger\Middleware\AddBusNameStampMiddleware;
-use Symfony\Component\Messenger\Middleware\DispatchAfterCurrentBusMiddleware;
-use Symfony\Component\Messenger\Middleware\FailedMessageProcessingMiddleware;
-use Symfony\Component\Messenger\Middleware\HandleMessageMiddleware;
-use Symfony\Component\Messenger\Middleware\MiddlewareInterface;
-use Symfony\Component\Messenger\Middleware\RejectRedeliveredMessageMiddleware;
-use Symfony\Component\Messenger\Middleware\SendMessageMiddleware;
 use Symfony\Component\Messenger\Retry\MultiplierRetryStrategy;
 use Symfony\Component\Messenger\Retry\RetryStrategyInterface;
 use Symfony\Component\Messenger\Transport\Serialization\Serializer;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Messenger\Transport\TransportInterface;
-use Weble\JoomlaQueues\Handler\HandlersLocator;
-use Weble\JoomlaQueues\Middleware\LogHandledMiddleware;
 
 abstract class TransportProvider implements ProvidesTransport
 {

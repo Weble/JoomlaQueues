@@ -1,7 +1,6 @@
 <?php
 
 use FOF30\Container\Container;
-use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -18,24 +17,17 @@ use Symfony\Component\Messenger\EventListener\SendFailedMessageForRetryListener;
 use Symfony\Component\Messenger\EventListener\SendFailedMessageToFailureTransportListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnSigtermSignalListener;
+use Symfony\Component\Messenger\Transport\TransportInterface;
 use Weble\JoomlaQueues\Command\PingQueueCommand;
 use Weble\JoomlaQueues\Command\ThrowErrorCommand;
-use Weble\JoomlaQueues\Listener\AddWorkerTimeStampsListener;
-use Weble\JoomlaQueues\Transport\RetryStrategyLocator;
-use Weble\JoomlaQueues\Transport\TransportLocator;
 
-defined('_JEXEC') or die;
-
-if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php')) {
-    throw new RuntimeException('FOF 3.0 is not installed', 500);
-}
-
-require_once(JPATH_LIBRARIES . '/joomla-queues/vendor/autoload.php');
+require_once(JPATH_LIBRARIES . '/joomla-queues/bootstrap.php');
 
 class PlgConsoleQueue extends CMSPlugin
 {
     /** @var \Joomla\CMS\Application\CliApplication */
     protected $app;
+    /** @var bool */
     protected $autoloadLanguage = true;
     /**
      * @var \Weble\JoomlaQueues\Admin\Container
@@ -51,23 +43,52 @@ class PlgConsoleQueue extends CMSPlugin
 
     public function onGetConsoleCommands(Application $console)
     {
-        $transportLocator = new TransportLocator();
-        $retryStrategyLocator = new RetryStrategyLocator($transportLocator);
         $stopWorkerCache = new FilesystemAdapter('', 0, JPATH_CACHE . '/com_queues_stop_workers');
         $logger = Log::createDelegatedLogger();
+        $dispatcher = $this->createEventDispatcher($stopWorkerCache);
 
-        $failureTransportName = ComponentHelper::getParams('com_queues')->get('failure_transport', 'failure');
+        $console->addCommands([
+            new ConsumeMessagesCommand(
+                $this->container->bus->routableBus(),
+                $this->container->transport->locator(),
+                $dispatcher,
+                $logger,
+                $this->container->transport->locator()->getReceivers()
+            ),
+            new DebugCommand($this->container->queue->handlersLocator()->debugHandlers()),
+            new StopWorkersCommand($stopWorkerCache),
+            new FailedMessagesShowCommand(
+                $this->container->transport->failureTransportName(),
+                $this->container->transport->failureTransport()
+            ),
+            new FailedMessagesRetryCommand(
+                $this->container->transport->failureTransportName(),
+                $this->container->transport->failureTransport(),
+                $this->container->bus->routableBus(),
+                $dispatcher,
+                $logger
+            ),
+            new FailedMessagesRemoveCommand(
+                $this->container->transport->failureTransportName(),
+                $this->container->transport->failureTransport()
+            ),
+            new PingQueueCommand(),
+            new ThrowErrorCommand()
+        ]);
+    }
 
-        /** @var \Symfony\Component\Messenger\Transport\Doctrine\DoctrineTransport $failureTransport */
-        $failureTransport = $transportLocator->get($failureTransportName);
-
+    private function createEventDispatcher(FilesystemAdapter $stopWorkerCache): EventDispatcher
+    {
         // Attach Listeners to events
         $dispatcher = new EventDispatcher();
         $dispatcher->addSubscriber(
-            new SendFailedMessageToFailureTransportListener($failureTransport)
+            new SendFailedMessageToFailureTransportListener($this->container->transport->failureTransport())
         );
         $dispatcher->addSubscriber(
-            new SendFailedMessageForRetryListener($transportLocator, $retryStrategyLocator)
+            new SendFailedMessageForRetryListener(
+                $this->container->transport->locator(),
+                $this->container->transport->retryStrategyLocator()
+            )
         );
         $dispatcher->addSubscriber(
             new StopWorkerOnRestartSignalListener($stopWorkerCache)
@@ -78,37 +99,6 @@ class PlgConsoleQueue extends CMSPlugin
         $dispatcher->addSubscriber(
             new DispatchPcntlSignalListener()
         );
-
-        $consumeCommand = new ConsumeMessagesCommand(
-            $this->container->bus->routableBus(),
-            $transportLocator,
-            $dispatcher,
-            $logger,
-            $transportLocator->getReceivers()
-        );
-
-
-        $console->addCommands([
-            $consumeCommand,
-            new DebugCommand($this->container->queue->handlersLocator()->debugHandlers()),
-            new StopWorkersCommand($stopWorkerCache),
-            new FailedMessagesShowCommand(
-                $failureTransportName,
-                $failureTransport
-            ),
-            new FailedMessagesRetryCommand(
-                $failureTransportName,
-                $failureTransport,
-                $this->container->bus->routableBus(),
-                $dispatcher,
-                $logger
-            ),
-            new FailedMessagesRemoveCommand(
-                $failureTransportName,
-                $failureTransport
-            ),
-            new PingQueueCommand(),
-            new ThrowErrorCommand()
-        ]);
+        return $dispatcher;
     }
 }

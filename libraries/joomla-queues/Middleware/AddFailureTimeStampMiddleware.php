@@ -18,7 +18,6 @@ class AddFailureTimeStampMiddleware implements MiddlewareInterface
         /** @var SentToFailureTransportStamp|null $sentToFailureStamp */
         $sentToFailureStamp = $envelope->last(SentToFailureTransportStamp::class);
         if (null !== $sentToFailureStamp) {
-            var_dump('here');
             $envelope = $envelope->with(new LastFailedTimeStamp());
         }
 

@@ -16,10 +16,21 @@
         <fields name="params">
             <fieldset name="basic">
                 <field
+                        name="override_retry_strategy"
+                        label="COM_QUEUES_CONFIG_OVERRIDE_RETRY_STRATEGY_LBL"
+                        description="COM_QUEUES_CONFIG_OVERRIDE_RETRY_STRATEGY_DESC"
+                        default="0"
+                        type="list"
+                >
+                    <option value="0">JNO</option>
+                    <option value="1">JYES</option>
+                </field>
+                <field
                         name="max_retries"
                         label="COM_QUEUES_CONFIG_MAX_RETRIES_LBL"
                         description="COM_QUEUES_CONFIG_MAX_RETRIES_DESC"
                         default="3"
+                        showon="override_retry_strategy:1"
                         type="number"
                 />
                 <field
@@ -27,6 +38,7 @@
                         label="COM_QUEUES_CONFIG_RETRY_DELAY_LBL"
                         description="COM_QUEUES_CONFIG_RETRY_DELAY_DESC"
                         default="1000"
+                        showon="override_retry_strategy:1"
                         type="number"
                 />
                 <field
@@ -34,6 +46,7 @@
                         label="COM_QUEUES_CONFIG_RETRY_MULTIPLIER_LBL"
                         description="COM_QUEUES_CONFIG_RETRY_MULTIPLIER_DESC"
                         default="1"
+                        showon="override_retry_strategy:1"
                         type="number"
                 />
                 <field
@@ -41,6 +54,7 @@
                         label="COM_QUEUES_CONFIG_MAX_RETRY_DELAY_LBL"
                         description="COM_QUEUES_CONFIG_MAX_RETRY_DELAY_DESC"
                         default="0"
+                        showon="override_retry_strategy:1"
                         type="number"
                 />
             </fieldset>

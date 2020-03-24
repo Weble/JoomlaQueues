@@ -23,7 +23,6 @@ class AddTimeStampMiddleware implements MiddlewareInterface
     {
         if (null === $envelope->last($this->timeStampClass)) {
             $stamp = new $this->timeStampClass;
-            var_dump($stamp);
             $envelope = $envelope->with($stamp);
         }
 

@@ -45,16 +45,24 @@ class TransportLocator implements SendersLocatorInterface, ContainerInterface
      * @param string $id
      * @return ProvidesTransport
      */
-    public function getProvider($id)
+    public function getProvider($id): ?ProvidesTransport
     {
         return $this->transports[$id] ?? null;
+    }
+
+    /**
+     * @return ProvidesTransport[]
+     */
+    public function getProviders(): array
+    {
+        return $this->transports;
     }
 
     /**
      * @param string $id
      * @return TransportInterface
      */
-    public function get($id)
+    public function get($id): ?TransportInterface
     {
         return $this->transports[$id] ? $this->transports[$id]->transport() : null;
     }

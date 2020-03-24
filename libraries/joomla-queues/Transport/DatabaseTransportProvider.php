@@ -6,6 +6,8 @@ namespace Weble\JoomlaQueues\Transport;
 
 use Doctrine\DBAL\DriverManager;
 use Joomla\CMS\Factory;
+use Joomla\Registry\Registry;
+use Symfony\Component\Messenger\Retry\RetryStrategyInterface;
 use Symfony\Component\Messenger\Transport\Doctrine\Connection;
 use Symfony\Component\Messenger\Transport\Doctrine\DoctrineTransport;
 use Symfony\Component\Messenger\Transport\TransportInterface;
@@ -18,11 +20,13 @@ class DatabaseTransportProvider extends TransportProvider
     protected $name = 'database';
     protected $tableName = 'queues_messages';
     protected $queueName;
-    private $dbConnection;
+    protected $dbConnection;
+    protected $params;
 
-    public function __construct(string $queueName = 'default')
+    public function __construct(string $queueName = 'default', Registry $params = null)
     {
         $this->queueName = $queueName;
+        $this->params = $params;
     }
 
     public function getKey(): string
@@ -33,6 +37,19 @@ class DatabaseTransportProvider extends TransportProvider
     public function transport(): TransportInterface
     {
         return $this->doctrineTransport();
+    }
+
+    public function retryStrategy(): RetryStrategyInterface
+    {
+        if (!$this->params) {
+            return parent::retryStrategy();
+        }
+
+        if (!$this->params->get('override_retry_strategy', 0)) {
+            return parent::retryStrategy();
+        }
+
+        return $this->useMultiplierRetryStrategy($this->params);
     }
 
     protected function customMiddlewares(): array
