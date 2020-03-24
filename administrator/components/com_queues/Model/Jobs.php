@@ -8,10 +8,12 @@ use FOF30\Container\Container;
 use FOF30\Model\DataModel;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Stamp\BusNameStamp;
+use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 use Symfony\Component\Messenger\Stamp\TransportMessageIdStamp;
 use Symfony\Component\Messenger\Transport\Serialization\Serializer;
 use Weble\JoomlaQueues\Stamp\HandledTimeStamp;
+use Weble\JoomlaQueues\Stamp\JobIdStamp;
 use Weble\JoomlaQueues\Stamp\LastFailedTimeStamp;
 use Weble\JoomlaQueues\Stamp\ReceivedTimeStamp;
 use Weble\JoomlaQueues\Stamp\SentTimeStamp;
@@ -23,6 +25,35 @@ class Jobs extends DataModel
         parent::__construct($container, $config);
 
         $this->addBehaviour('Filters');
+    }
+
+    protected function onBeforeBuildQuery(\JDatabaseQuery &$query, $overrideLimits = false)
+    {
+        $this->setState('filter_order', $this->getState('filter_order', 'queues_job_id'));
+        $this->setState('filter_order_Dir', $this->getState('filter_order_Dir', 'DESC'));
+
+        if ($status = $this->getState('job_status')) {
+            switch ($status) {
+                case 'failed':
+                    $this->whereRaw('last_failed_on IS NOT NULL');
+                    $this->whereRaw('handled_on IS NULL');
+                    break;
+                case 'handled':
+                    $this->whereRaw('handled_on IS NOT NULL');
+                    break;
+                case 'processing':
+                    $this->whereRaw('received_on IS_NOT NULL');
+                    $this->whereRaw('last_failed_on IS NULL');
+                    $this->whereRaw('handled_on IS NULL');
+                    break;
+                case 'waiting':
+                    $this->whereRaw('sent_on IS NOT NULL');
+                    $this->whereRaw('handled_on IS NULL');
+                    $this->whereRaw('last_failed_on IS NULL');
+                    $this->whereRaw('received_on IS NULL');
+                    break;
+            }
+        }
     }
 
     public function fromEnvelope(Envelope $envelope): self
@@ -41,23 +72,19 @@ class Jobs extends DataModel
         $handledTimeStamp = $envelope->last(HandledTimeStamp::class);
         /** @var LastFailedTimeStamp $lastFailedTimeStamp */
         $lastFailedTimeStamp = $envelope->last(LastFailedTimeStamp::class);
+        /** @var JobIdStamp $jobIdStamp */
+        $jobIdStamp = $envelope->last(JobIdStamp::class);
 
         $data = (new Serializer())->encode($envelope);
 
-        $originalMessageId = $lastFailedTimeStamp ? $lastFailedTimeStamp->getOriginalMessageId() : null;
-        $messageId = $originalMessageId ?: ($messageIdStamp ? $messageIdStamp->getId() : null);
-        $transportName = $receivedStamp ? $receivedStamp->getTransportName() : null;
-        if ($messageId && $transportName) {
-            $this->find([
-                'message_id' => $messageId,
-                'transport' => $transportName,
-            ]);
+        if ($jobIdStamp && $jobIdStamp->getJobId()) {
+            $this->find($jobIdStamp->getJobId());
         }
 
         $this->bind([
             'bus' => $busNameStamp ? $busNameStamp->getBusName() : null,
-            'message_id' => $messageId,
-            'transport' => $transportName,
+            'message_id' => $messageIdStamp ? $messageIdStamp->getId() : null,
+            'transport' => $receivedStamp ? $receivedStamp->getTransportName() : null,
             'headers' => json_encode($data['headers'] ?? null),
             'sent_on' => $sentTimeStamp ? $sentTimeStamp->getTime()->toSql() : null,
             'received_on' => $receivedTimeStamp ? $receivedTimeStamp->getTime()->toSql() : null,
@@ -67,5 +94,46 @@ class Jobs extends DataModel
         ]);
 
         return $this;
+    }
+
+    public function envelope(): Envelope
+    {
+        $data = [
+            'headers' => \json_decode($this->headers, true),
+            'body' => $this->body
+        ];
+        return (new Serializer())->decode($data);
+    }
+
+    public function handledBy(): array
+    {
+        $handlers = [];
+        $handlerStamps = $this->envelope()->all(HandledStamp::class);
+        /** @var HandledStamp $stamp */
+        foreach ($handlerStamps as $stamp) {
+            $handlers[] = $stamp->getHandlerName();
+        }
+
+        return $handlers;
+    }
+
+    public function waiting(): bool
+    {
+        return $this->sent_on && !$this->received_on;
+    }
+
+    public function received(): bool
+    {
+        return $this->received_on && !$this->handled() && !$this->hasFailed();
+    }
+
+    public function hasFailed(): bool
+    {
+        return !$this->handled_on && $this->last_failed_on;
+    }
+
+    public function handled(): bool
+    {
+        return $this->handled_on ? true : false;
     }
 }

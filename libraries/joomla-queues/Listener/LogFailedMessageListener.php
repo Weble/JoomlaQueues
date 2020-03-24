@@ -26,18 +26,11 @@ class LogFailedMessageListener implements EventSubscriberInterface
 
     public function onMessageFailed(WorkerMessageFailedEvent $event)
     {
-        $envelope = $event->getEnvelope();
-
-        $messageIdStamp = $envelope->last(TransportMessageIdStamp::class);
-        $messageId = $messageIdStamp ? $messageIdStamp->getId() : null;
-        $stamp = new LastFailedTimeStamp($messageId);
-        if (null !== $envelope->last(LastFailedTimeStamp::class)) {
-            $stamp = new LastFailedTimeStamp($envelope->last(LastFailedTimeStamp::class)->getOriginalMessageId());
-        }
+        $envelope = $event->getEnvelope()->with(new LastFailedTimeStamp());
 
         /** @var Jobs $model */
         $model = $this->container->factory->model('Jobs')->tmpInstance();
-        $model->fromEnvelope($envelope->with($stamp))->save();
+        $model->fromEnvelope($envelope)->save();
 
         return $envelope;
     }

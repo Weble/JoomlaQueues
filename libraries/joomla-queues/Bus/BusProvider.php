@@ -16,7 +16,7 @@ use Symfony\Component\Messenger\Middleware\RejectRedeliveredMessageMiddleware;
 use Symfony\Component\Messenger\Middleware\SendMessageMiddleware;
 use Weble\JoomlaQueues\Middleware\AddFailureTimeStampMiddleware;
 use Weble\JoomlaQueues\Middleware\AddTimeStampMiddleware;
-use Weble\JoomlaQueues\Middleware\LogHandledMiddleware;
+use Weble\JoomlaQueues\Middleware\LogJobsMiddleware;
 use Weble\JoomlaQueues\Stamp\HandledTimeStamp;
 use Weble\JoomlaQueues\Stamp\ReceivedTimeStamp;
 use Weble\JoomlaQueues\Stamp\SentTimeStamp;
@@ -106,6 +106,7 @@ abstract class BusProvider implements ProvidesBus
 
         return [
             new AddTimeStampMiddleware(SentTimeStamp::class),
+            new LogJobsMiddleware(),
             new SendMessageMiddleware(
                 $transportLocator,
                 new EventDispatcher()
@@ -115,7 +116,7 @@ abstract class BusProvider implements ProvidesBus
                 $this->container->handler->locator()
             ),
             new AddTimeStampMiddleware(HandledTimeStamp::class),
-            new LogHandledMiddleware()
+            new LogJobsMiddleware()
         ];
     }
 

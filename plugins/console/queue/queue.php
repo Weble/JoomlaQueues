@@ -82,13 +82,13 @@ class PlgConsoleQueue extends CMSPlugin
         // Attach Listeners to events
         $dispatcher = new EventDispatcher();
         $dispatcher->addSubscriber(
-            new LogFailedMessageListener(
-                $this->container,
+            new SendFailedMessageToFailureTransportListener(
                 $this->container->transport->failureTransport()
             )
         );
         $dispatcher->addSubscriber(
-            new SendFailedMessageToFailureTransportListener(
+            new LogFailedMessageListener(
+                $this->container,
                 $this->container->transport->failureTransport()
             )
         );

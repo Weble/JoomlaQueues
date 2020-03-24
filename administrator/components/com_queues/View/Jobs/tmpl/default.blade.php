@@ -1,9 +1,9 @@
 <?php
 defined('_JEXEC') or die();
 /**
- * @var  \Weble\JoomlaQueues\Admin\View\Jobs\Html   $this
- * @var  \Weble\JoomlaQueues\Admin\Model\Jobs       $row
- * @var  \Weble\JoomlaQueues\Admin\Model\Jobs       $model
+ * @var  \Weble\JoomlaQueues\Admin\View\Jobs\Html $this
+ * @var  \Weble\JoomlaQueues\Admin\Model\Jobs $row
+ * @var  \Weble\JoomlaQueues\Admin\Model\Jobs $model
  */
 $model = $this->getModel();
 ?>
@@ -21,20 +21,32 @@ $model = $this->getModel();
         <th>
             @sortgrid('id')
         </th>
-        <th>
+        <th width="20%">
             @lang('COM_QUEUES_JOB_FIELD_BUS')
         </th>
         <th width="20%">
             @lang('COM_QUEUES_JOB_FIELD_TRANSPORT')
         </th>
         <th width="20%">
-            @lang('COM_QUEUES_JOB_FIELD_MESSAGE_ID')
+            @lang('COM_QUEUES_JOB_FIELD_MESSAGE')
         </th>
         <th width="20%">
-            @sortgrid('available_at')
+            @lang('COM_QUEUES_JOB_FIELD_HANDLERS')
         </th>
-        <th width="60">
-            @sortgrid('delivered_at')
+        <th width="20%">
+            @lang('COM_QUEUES_JOB_FIELD_STATUS')
+        </th>
+        <th width="20%">
+            @sortgrid('sent_on')
+        </th>
+        <th width="20%">
+            @sortgrid('received_on')
+        </th>
+        <th width="20%">
+            @sortgrid('handled_on')
+        </th>
+        <th width="20%">
+            @sortgrid('last_failed_on')
         </th>
     </tr>
 @stop
@@ -46,7 +58,7 @@ $model = $this->getModel();
         <tr>
 
             <td>
-               {{ $row->getId() }}
+                {{ $row->getId() }}
             </td>
             <td>
                 {{ $row->bus }}
@@ -55,13 +67,53 @@ $model = $this->getModel();
                 {{ $row->transport }}
             </td>
             <td>
-                {{ $row->message_id }}
+                <strong>{{ get_class($row->envelope()->getMessage()) }}</strong><br/>
+                @lang('COM_QUEUES_JOB_FIELD_MESSAGE_ID'): {{ $row->message_id }}
             </td>
             <td>
-                {{ $row->available_at }}
+                @if (count($row->handledBy()) > 0)
+                    <ul class="unstyled">
+                        @foreach ($row->handledBy() as $handler)
+                            <li>
+                                <strong>{{ $handler }}</strong>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
             </td>
             <td>
-                {{ $row->delivered_at }}
+                @if ($row->waiting())
+                    <span class="badge badge-info">
+                        @lang('COM_QUEUES_JOBS_WAITING')
+                    </span>
+                @endif
+                @if ($row->hasFailed())
+                    <span class="badge" style="background-color: #ee5f5b">
+                        @lang('COM_QUEUES_JOBS_FAILED')
+                    </span>
+                @endif
+                @if ($row->received())
+                    <span class="badge badge-warning">
+                        @lang('COM_QUEUES_JOBS_RECEIVED')
+                    </span>
+                @endif
+                @if ($row->handled())
+                    <span class="badge badge-success">
+                        @lang('COM_QUEUES_JOBS_HANDLED')
+                    </span>
+                @endif
+            </td>
+            <td>
+                {{ $row->sent_on }}
+            </td>
+            <td>
+                {{ $row->received_on }}
+            </td>
+            <td>
+                {{ $row->handled_on }}
+            </td>
+            <td>
+                {{ $row->last_failed_on }}
             </td>
         </tr>
     @endforeach
