@@ -49,7 +49,7 @@ class Toolbar extends \FOF30\Toolbar\Toolbar
     {
         return [
             'CPanels',
-            'JobsJ'
+            'Jobs'
         ];
     }
 }
