@@ -11,7 +11,7 @@ First, you need to have our Joomla Commands package installed:
 [https://github.com/Weble/JoomlaCommands](https://github.com/Weble/JoomlaCommands)
 After that you can write messages and handlers to dispatched and run through a queue.
 
-This also requires php 7.2.5+ due to its Symfony's dependencies. It's tested on php 7.3 / 7.4.
+This extension also requires FOF3 to be installed (any Akeeba extension installs it by default, so grab an Akeeba Backup Free and install it first) and php 7.2.5+ due to its Symfony's dependencies. It's tested on php 7.3 / 7.4.
 
 ## Installation
 
