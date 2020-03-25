@@ -11,7 +11,7 @@ First, you need to have our Joomla Commands package installed:
 [https://github.com/Weble/JoomlaCommands](https://github.com/Weble/JoomlaCommands)
 After that you can write messages and handlers to dispatched and run through a queue.
 
-This extension also requires FOF3 to be installed (any Akeeba extension installs it by default, so grab an Akeeba Backup Free and install it first) and php 7.2.5+ due to its Symfony's dependencies. It's tested on php 7.3 / 7.4.
+This also requires php 7.2.5+ due to its Symfony's dependencies. It's tested on php 7.3 / 7.4.
 
 ## Installation
 
@@ -22,7 +22,8 @@ By default we provide a default bus and a default transport using the database d
 
 Additionally, we store failed jobs using the same transport, but a different queue name, and we log each message passing through the default bus in a separate table, allowing you to **monitor the job processing status.**
 
-[IMG HERE]
+![Screenshot1](https://github.com/Weble/JoomlaQueues/raw/master/screenshot1.png)
+![Screenshot2](https://github.com/Weble/JoomlaQueues/raw/master/screenshot2.png)
 
 Alternatively you can create new transport and new buses to use however you see fit.
 
@@ -49,7 +50,7 @@ This configuration resembles very closely the symfony's one:
 #### 1. ```onGetQueueMessages``` 
 
 Add a ```onGetQueueMessages```  method, and return an associative array of messages with a list of their handlers.
-Check the Email Handler plugin as an example:
+Check the [Example Plugin](https://github.com/Weble/JoomlaQueues/blob/master/plugins/queue/queueexample/queueexample.php), the [SendEmailMessage](https://github.com/Weble/JoomlaQueues/blob/master/libraries/joomla-queues/Message/SendEmailMessage.php) and [Email Handler](https://github.com/Weble/JoomlaQueues/blob/master/libraries/joomla-queues/Handler/SendEmailHandler.php) classes as an example:
 
 ```php
     public function onGetQueueMessages()
@@ -84,7 +85,7 @@ Check the Email Handler plugin as an example:
 #### 2. ```onGetQueueHandlers``` 
 
 Add a ```onGetQueueHandlers```  method, and return an associative array of handlers with an optional configuration.
-Check the Email Handler plugin as an example:
+Check the [Example plugin](https://github.com/Weble/JoomlaQueues/blob/master/plugins/queue/queueexample/queueexample.php)] as an example:
 
 ```php
     public function onGetQueueHandlers()
@@ -173,10 +174,4 @@ Check the Default plugin and the ```DefaultBusProvider``` class for more informa
            new YourCustomBusProvider()
        ];
    }
-```
-
-You then dispatch the message specifying the bus id, which is the bus key you specified in your BusProvider
-
-```php
-\FOF30\Container\Container::getInstance('com_queues')->queue->dispatch(new \Weble\JoomlaQueues\Message\PingMessage(), $yourBusId);
 ```
