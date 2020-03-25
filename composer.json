@@ -1,7 +1,8 @@
 {
     "name": "weble/joomla-queues",
     "require": {
-        "php": "^7.3",
+        "php": "^7.2",
+        "ext-json":"*",
         "symfony/messenger": "^5.0",
         "symfony/event-dispatcher": "^5.0",
         "doctrine/dbal": "^2.10",

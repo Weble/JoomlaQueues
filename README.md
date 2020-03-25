@@ -3,11 +3,15 @@
 Implementation of symfony/messenger for Joomla! to run background commands using queues.
 See [https://symfony.com/doc/current/messenger.html](https://symfony.com/doc/current/messenger.html)
 
+# WARNING: This is still in development. Use at your own risk, and feel free to PR any changes you see fit!
+
 ## Requirements
 
 First, you need to have our Joomla Commands package installed:
 [https://github.com/Weble/JoomlaCommands](https://github.com/Weble/JoomlaCommands)
 After that you can write messages and handlers to dispatched and run through a queue.
+
+This also requires php 7.2.5+ due to its Symfony's dependencies. It's tested on php 7.3 / 7.4.
 
 ## Installation
 
