@@ -9,6 +9,11 @@ First, you need to have our Joomla Commands package installed:
 [https://github.com/Weble/JoomlaCommands](https://github.com/Weble/JoomlaCommands)
 After that you can write messages and handlers to dispatched and run through a queue.
 
+## Installation
+
+We don't yet provide an installable package.
+This repository mimics the standard Joomla! installation structure, so just by downloading the master branch into your project should make it available for installation through the standard Joomla! discover installer.
+
 By default we provide a default bus and a default transport using the database driver, with a default table that stores the jobs to be processed.
 
 Additionally, we store failed jobs using the same transport, but a different queue name, and we log each message passing through the default bus in a separate table, allowing you to **monitor the job processing status.**
@@ -109,3 +114,59 @@ In order to dispatch new messages, you just need to call the ```dispatch``` meth
 This is done through a CLI command
 
 ```php bin/console messenger:consume {optionalTransportName}```
+
+## Advanced Configurations
+
+Other than the basic usage, you can extensively customize other parts of the process as well.
+
+### Adding Transports
+
+You can add more transports (like redis, sqs, etc) through Joomla! plugins as well.
+This is done using the ```onGetQueueTransports``` method.
+
+This method should return an array of objects that implements the ```\Weble\JoomlaQueues\Transport\ProvidesTransport``` interface. This class describes the transport itself, and its accessory configuration, like retry strategy and serializer.
+
+In addition, we provide an abstract ```\Weble\JoomlaQueues\Transport\TransportProvider```  class, that implements a standard serializer and retry strategy for you. The only requirement for you is to implement the ```transport()``` method, that should return a ```Symfony\Component\Messenger\Transport\TransportInterface```
+
+Check the Default plugin and the ```DatabaseTransportProvider``` class for more informations, alongside the [symfony documentation on transports](https://symfony.com/doc/current/messenger.html#transport-configuration).
+
+```php
+    public function onGetQueueTransports()
+    {
+        return [
+            new YourCustomTransportProvider(),
+        ];
+    }
+```
+
+If you just want to add more queues using our provided database transport, you can do it like this:
+
+```php
+    public function onGetQueueTransports()
+    {
+        return [
+            new \Weble\JoomlaQueues\Transport\DatabaseTransportProvider('newqueuename'),
+        ];
+    }
+```
+
+### Multiple Buses
+
+You can add more buses to process different type of requests. More on this on the [official symfony documentation](https://symfony.com/doc/current/messenger/multiple_buses.html).
+
+You can do so by implementing the ```onGetQueueBuses``` method in your plugin.
+
+This method should return an array of objects that implements the ```\Weble\JoomlaQueues\Bus\ProvidesBus``` interface. This class describes the bus itself, and its accessory configuration, like middlewares to be used.
+
+In addition, we provide an abstract ```\Weble\JoomlaQueues\Bus\BusProvider```  class, that implements a standard list of middlewares. The only requirement for you is to implement the ```bus()``` method, that should return a ```Symfony\Component\Messenger\MessageBusInterface```
+
+Check the Default plugin and the ```DefaultBusProvider``` class for more informations.
+
+```php
+    public function onGetQueueBuses()
+   {
+       return [
+           new YourCustomBusProvider()
+       ];
+   }
+```
