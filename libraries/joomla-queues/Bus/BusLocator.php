@@ -21,7 +21,7 @@ class BusLocator implements ContainerInterface
     /**
      * @return MessageBusInterface[]
      */
-    public function getBuses(): Registry
+    public function getBuses(): array
     {
         $buses = [];
         foreach ($this->buses as $busProvider) {

@@ -46,3 +46,8 @@ libraries/joomla-queues/vendor
 plugins/console/*
 !plugins/console/queue
 !plugins/queue
+build/*
+!build/packages
+build/packages/*
+!build/pkg_joomlaqueues.xml
+.DS_Store

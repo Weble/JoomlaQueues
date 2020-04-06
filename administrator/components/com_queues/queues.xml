@@ -13,18 +13,34 @@
     <!-- Administrator back-end section -->
     <administration>
         <!-- Administration menu -->
-        <menu view="Jobs">COM_QUEUES</menu>
+        <menu view="Cpanels">COM_QUEUES</menu>
 
         <!-- Back-end files -->
         <files folder="backend">
+            <filename>Container.php</filename>
             <filename>access.xml</filename>
             <filename>queues.xml</filename>
             <filename>config.xml</filename>
             <filename>fof.xml</filename>
             <filename>queues.php</filename>
+            <folder>Controller</folder>
+            <folder>Field</folder>
+            <folder>Model</folder>
+            <folder>Service</folder>
             <folder>sql</folder>
+            <folder>Toolbar</folder>
+            <folder>View</folder>
         </files>
+
+        <!-- Joomla! language tag -->
+        <languages>
+            <language tag="en-GB">en-GB.com_queues.ini</language>
+            <language tag="en-GB">en-GB.com_queues.sys.ini</language>
+        </languages>
+
     </administration>
+
+
 
     <scriptfile>script.com_queues.php</scriptfile>
 </extension>

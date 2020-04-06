@@ -40,7 +40,7 @@ class Bus
     /**
      * @return MessageBusInterface[]
      */
-    public function getBuses(): Registry
+    public function getBuses(): array
     {
         return $this->busLocator->getBuses();
     }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="package" method="upgrade" version="3.0">
+    <name>Joomla Commands</name>
+    <description>Symfony Console Commands in Joomla!</description>
+    <author>Hello World Package Team</author>
+    <version>1.1.0</version>
+    <packagename>joomlacommands</packagename>
+    <creationDate>April 2020</creationDate>
+    <url>https://github.com/Weble/JoomlaCommands</url>
+    <packager>Weble Srl</packager>
+    <packagerurl>https://www.weble.it</packagerurl>
+    <files folder="packages">
+        <file type="library" id="library">library_joomlaqueues.zip</file>
+        <file type="component" id="component">com_queues.zip</file>
+        <file type="plugin" id="console" group="console">plg_console_queue.zip</file>
+        <file type="plugin" id="queue-default" group="queue">plg_queue_default.zip</file>
+        <file type="plugin" id="queue-example" group="queue">plg_queue_example.zip</file>
+    </files>
+</extension>

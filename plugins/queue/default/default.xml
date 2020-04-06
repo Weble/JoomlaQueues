@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension version="3.9" type="plugin" group="queue" method="upgrade">
-    <name>PLG_QUEUE_DEFAULT</name>
+    <name>Queue - Default Commands</name>
     <version>1.0</version>
     <creationDate>March 2020</creationDate>
     <copyright>(C) 2020 Weble Srl</copyright>

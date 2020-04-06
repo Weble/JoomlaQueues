@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="library" version="3.9" method="upgrade">
+    <!-- Please use a unique name to make uninstall to work. Should be identical to your manifest filename. -->
+    <name>Joomla Queues - Library</name>
+    <libraryname>joomla-queues</libraryname>
+    <author>Weble Srl</author>
+    <version>1.0.0</version>
+    <creationDate>April 2020</creationDate>
+    <copyright>(C) 2020 Weble Srl</copyright>
+    <license>MIT</license>
+    <authorEmail>daniele@weble.it</authorEmail>
+    <authorUrl>http://www.weble.it</authorUrl>
+    <description>Joomla Queues - Library</description>
+
+    <files>
+        <folder>Bus</folder>
+        <folder>Command</folder>
+        <folder>Handler</folder>
+        <folder>Listener</folder>
+        <folder>Message</folder>
+        <folder>Middleware</folder>
+        <folder>Stamp</folder>
+        <folder>Transport</folder>
+        <folder>vendor</folder>
+        <file>joomla-queues.xml</file>
+        <file>bootstrap.php</file>
+    </files>
+</extension>
