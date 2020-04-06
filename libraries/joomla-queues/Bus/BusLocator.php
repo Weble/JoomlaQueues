@@ -19,6 +19,19 @@ class BusLocator implements ContainerInterface
     }
 
     /**
+     * @return ProvidesBus[]
+     */
+    public function getProviders(): array
+    {
+        $providers = [];
+        foreach ($this->buses as $busProvider) {
+            $providers[$busProvider->getKey()] = $busProvider;
+        }
+
+        return $providers;
+    }
+
+    /**
      * @return MessageBusInterface[]
      */
     public function getBuses(): array

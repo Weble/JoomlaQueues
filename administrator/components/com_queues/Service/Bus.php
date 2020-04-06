@@ -45,6 +45,11 @@ class Bus
         return $this->busLocator->getBuses();
     }
 
+    public function getProviders(): array
+    {
+        return $this->busLocator->getProviders();
+    }
+
     public function getBus(?string $busId = null): MessageBusInterface
     {
         if (!$busId) {

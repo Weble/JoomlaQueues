@@ -23,7 +23,7 @@ class JFormFieldQueueBuses extends JFormFieldList
             $obj->value = $busProvider->getKey();
             $obj->text = $busProvider->getName();
             return $obj;
-        }, $container->bus->getBuses());
+        }, $container->bus->getProviders());
     }
 
 }
