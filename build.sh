@@ -9,7 +9,7 @@ cd ../../../
 
 # Add language files to component zip
 cd administrator/language/en-GB
-zip -ur ../../../build/packages/com_queues.zip ./en-GB.com_queues.*
+zip -qur ../../../build/packages/com_queues.zip ./en-GB.com_queues.*
 cd ../../../
 
 # Zip Plugins

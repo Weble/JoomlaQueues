@@ -20,11 +20,23 @@ use Weble\JoomlaQueues\Stamp\SentTimeStamp;
 
 class Jobs extends DataModel
 {
+    /**
+     * @var Serializer
+     */
+    protected $serialzer;
+
+    /**
+     * @var \Weble\JoomlaQueues\Admin\Container
+     */
+    protected $container;
+
     public function __construct(Container $container, array $config = array())
     {
         parent::__construct($container, $config);
 
         $this->addBehaviour('Filters');
+
+        $this->serialzer = Serializer::create();
     }
 
     protected function onBeforeBuildQuery(\JDatabaseQuery &$query, $overrideLimits = false)
@@ -102,7 +114,7 @@ class Jobs extends DataModel
             'headers' => \json_decode($this->headers, true),
             'body' => $this->body
         ];
-        return (new Serializer())->decode($data);
+        return $this->serializer->decode($data);
     }
 
     public function handledBy(): array

@@ -41,9 +41,7 @@ class Configuration
         $this->container->platform->setAllowPluginsInCli(true);
         $this->container->platform->importPlugin(self::PLUGIN_GROUP);
 
-        $this->loadBusesConfiguration();
-        $this->loadTransportsConfiguration();
-        $this->loadMessagesAndHandlersConfiguration();
+        $this->loadConfigurations();
 
         $this->container->platform->setAllowPluginsInCli($allowPluginsInCLI);
     }
@@ -328,5 +326,12 @@ class Configuration
         }
 
         return [$parameters[0]->getType()->getName()];
+    }
+
+    public function loadConfigurations(): void
+    {
+        $this->loadBusesConfiguration();
+        $this->loadTransportsConfiguration();
+        $this->loadMessagesAndHandlersConfiguration();
     }
 }
