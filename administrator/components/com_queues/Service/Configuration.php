@@ -36,14 +36,7 @@ class Configuration
     public function __construct(Container $container)
     {
         $this->container = $container;
-
-        $allowPluginsInCLI = $this->container->platform->isAllowPluginsInCli();
-        $this->container->platform->setAllowPluginsInCli(true);
-        $this->container->platform->importPlugin(self::PLUGIN_GROUP);
-
         $this->loadConfigurations();
-
-        $this->container->platform->setAllowPluginsInCli($allowPluginsInCLI);
     }
 
     public function messageHandlers(): Registry
@@ -330,8 +323,14 @@ class Configuration
 
     public function loadConfigurations(): void
     {
+        $allowPluginsInCLI = $this->container->platform->isAllowPluginsInCli();
+        $this->container->platform->setAllowPluginsInCli(true);
+        $this->container->platform->importPlugin(self::PLUGIN_GROUP);
+
         $this->loadBusesConfiguration();
         $this->loadTransportsConfiguration();
         $this->loadMessagesAndHandlersConfiguration();
+
+        $this->container->platform->setAllowPluginsInCli($allowPluginsInCLI);
     }
 }

@@ -36,6 +36,8 @@ class Jobs extends DataModel
 
         $this->addBehaviour('Filters');
 
+        // This autoload all the message classes
+        $this->container->queueConfig->loadConfigurations();
         $this->serialzer = Serializer::create();
     }
 
