@@ -69,11 +69,16 @@ class Configuration
                 $debugCommandMapping[$bus] = [];
             }
 
-            foreach ($debugCommandMapping[$bus] as $message => $handlers) {
-                foreach ($handlers as $key => $handler) {
-                    foreach ($handler as $k => $v) {
-                        $debugCommandMapping[$bus][$message][$key][0] = get_class($v[0]);
-                        $debugCommandMapping[$bus][$message][$key][1] = $v[1] ?? [];
+            foreach ($debugCommandMapping[$bus] as $message => $handlersByPriority) {
+                foreach ($handlersByPriority as $key => $handlers) {
+                    /** @var HandlerDescriptor $handlerDescriptor */
+                    foreach ($handlers as $handlerDescriptor) {
+                        $r = new \ReflectionClass($handlerDescriptor);
+                        $p = $r->getProperty('options');
+                        $p->setAccessible(true);
+
+                        $debugCommandMapping[$bus][$message][$key][0] = get_class($handlerDescriptor->getHandler());
+                        $debugCommandMapping[$bus][$message][$key][1] = $p->getValue($handlerDescriptor) ?? [];
                     }
                 }
             }
@@ -88,7 +93,7 @@ class Configuration
 
         $handlersByBusAndMessage = [];
 
-        foreach ($this->buses() as $messageClass => $handlerDescriptors) {
+        foreach ($this->messageHandlers() as $messageClass => $handlerDescriptors) {
             /** @var HandlerDescriptor $handlerDescriptor */
             foreach ($handlerDescriptors as $handlerDescriptor) {
                 $handlerBuses = (array)($handlerDescriptor->getOption('bus') ?: $busIds);
@@ -203,7 +208,7 @@ class Configuration
                 }
 
                 if (isset($configuration['handles'])) {
-                    $handles = isset($configuration['method']) ? [$configuration['handles'] => $configuration['method']] : (array) $configuration['handles'];
+                    $handles = isset($configuration['method']) ? [$configuration['handles'] => $configuration['method']] : (array)$configuration['handles'];
                 } else {
                     $handles = $this->guessHandledClasses($r);
                 }
@@ -215,7 +220,6 @@ class Configuration
                             $message = $options;
                             $options = [];
                         } else {
-                            var_dump($message, $options);die();
                             throw new  RuntimeException(sprintf('The handler configuration needs to return an array of messages or an associated array of message and configuration. Found value of type "%s" at position "%d" for handler "%s".', \gettype($options), $message, $handlerClass));
                         }
                     }
@@ -252,7 +256,7 @@ class Configuration
 
                     if ('__invoke' !== $method) {
                         $handler = \Closure::fromCallable([
-                            $handlerClass,
+                            new $handlerClass(),
                             $method
                         ]);
                     } else {
