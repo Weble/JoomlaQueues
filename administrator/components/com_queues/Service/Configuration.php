@@ -232,8 +232,13 @@ class Configuration
                         $options['from_transport'] = $configuration['from_transport'];
                     }
 
-                    $options['priority'] = $options['priority'] ?? $configuration['priority'] ?? 0;
+
+                    $priority = $options['priority'] ?? $configuration['priority'] ?? null;
                     $method = $options['method'] ?? '__invoke';
+
+                    if ($priority !== null) {
+                        $options['priority'] = 'priority';
+                    }
 
                     if (isset($options['bus'])) {
                         if (!\in_array($options['bus'], $busIds)) {
