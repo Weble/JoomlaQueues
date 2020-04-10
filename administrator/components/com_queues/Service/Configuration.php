@@ -70,15 +70,24 @@ class Configuration
             }
 
             foreach ($debugCommandMapping[$bus] as $message => $handlersByPriority) {
-                foreach ($handlersByPriority as $key => $handlers) {
+                $key = 0;
+                foreach ($handlersByPriority as $priority => $handlers) {
                     /** @var HandlerDescriptor $handlerDescriptor */
                     foreach ($handlers as $handlerDescriptor) {
                         $r = new \ReflectionClass($handlerDescriptor);
                         $p = $r->getProperty('options');
                         $p->setAccessible(true);
 
-                        $debugCommandMapping[$bus][$message][$key][0] = get_class($handlerDescriptor->getHandler());
-                        $debugCommandMapping[$bus][$message][$key][1] = $p->getValue($handlerDescriptor) ?? [];
+                        $handlerClass = $handlerDescriptor->getOption('handlerClass') ?: get_class($handlerDescriptor->getHandler());
+                        $handlerMethod = $handlerDescriptor->getOption('method') ?: '__invoke';
+                        $options = $p->getValue($handlerDescriptor);
+
+                        unset($options['method']);
+                        unset($options['handlerClass']);
+
+                        $debugCommandMapping[$bus][$message][$key][0] = $handlerClass . '::' . $handlerMethod;
+                        $debugCommandMapping[$bus][$message][$key][1] = $options ?? [];
+                        $key++;
                     }
                 }
             }
@@ -259,11 +268,13 @@ class Configuration
                     }
 
 
+                    $options['handlerClass'] = $handlerClass;
                     if ('__invoke' !== $method) {
                         $handler = \Closure::fromCallable([
                             new $handlerClass(),
                             $method
                         ]);
+
                     } else {
                         $handler = new $handlerClass();
                     }
