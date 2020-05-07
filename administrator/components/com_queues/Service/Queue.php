@@ -2,6 +2,7 @@
 
 namespace Weble\JoomlaQueues\Admin\Service;
 
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Weble\JoomlaQueues\Admin\Container;
 
 class Queue
@@ -20,6 +21,10 @@ class Queue
      */
     public function dispatch($message, $busId = null)
     {
-        $this->container->bus->getBus($busId)->dispatch($message);
+        try {
+            $this->container->bus->getBus($busId)->dispatch($message);
+        } catch (HandlerFailedException $e) {
+            throw $e->getPrevious();
+        }
     }
 }

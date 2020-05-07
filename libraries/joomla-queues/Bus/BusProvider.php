@@ -6,6 +6,7 @@ use FOF30\Container\Container;
 use FOF30\Model\Exception\CannotGetName;
 use Joomla\CMS\Application\ApplicationHelper;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Middleware\AddBusNameStampMiddleware;
 use Symfony\Component\Messenger\Middleware\DispatchAfterCurrentBusMiddleware;

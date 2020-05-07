@@ -9,7 +9,7 @@
 
         <!-- Dispatcher configuration -->
         <dispatcher>
-            <option name="defaultView">Cpanels</option>
+            <option name="defaultView">CPanels</option>
         </dispatcher>
     </common>
 
