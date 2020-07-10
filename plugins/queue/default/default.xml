@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension version="3.9" type="plugin" group="queue" method="upgrade">
     <name>Queue - Default Commands</name>
-    <version>1.3.0</version>
+    <version>1.4.0</version>
     <creationDate>March 2020</creationDate>
     <copyright>(C) 2020 Weble Srl</copyright>
     <license>MIT</license>

@@ -17,10 +17,11 @@ use Weble\JoomlaQueues\Middleware\DoctrineTransactionMiddleware;
 
 class DatabaseTransportProvider extends TransportProvider
 {
+    use HasDoctrineConnection;
+
     protected $name = 'database';
     protected $tableName = 'queues_messages';
     protected $queueName;
-    protected $dbConnection;
     protected $params;
 
     public function __construct(string $queueName = 'default', Registry $params = null)
@@ -82,22 +83,5 @@ class DatabaseTransportProvider extends TransportProvider
         return new DoctrineTransport($driverConnection, $this->serializer());
     }
 
-    private function dbConnection(): \Doctrine\DBAL\Connection
-    {
-        if (!$this->dbConnection) {
-            $config = Factory::getConfig();
-            $connectionParams = array(
-                'dbname'   => $config->get('db'),
-                'user'     => $config->get('user'),
-                'password' => $config->get('password'),
-                'host'     => $config->get('host'),
-                'driver'   => 'pdo_mysql',
-            );
-            $dbConnection = DriverManager::getConnection($connectionParams);
-            $dbConnection->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
-            $this->dbConnection = $dbConnection;
-        }
 
-        return $this->dbConnection;
-    }
 }

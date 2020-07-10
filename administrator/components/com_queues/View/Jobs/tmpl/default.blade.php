@@ -67,8 +67,12 @@ $model = $this->getModel();
                 {{ $row->transport }}
             </td>
             <td>
-                <strong>{{ get_class($row->envelope()->getMessage()) }}</strong><br/>
-                @lang('COM_QUEUES_JOB_FIELD_MESSAGE_ID'): {{ $row->message_id }}
+                @if ($row->envelope())
+                    <strong>{{ get_class($row->envelope()->getMessage()) }}</strong><br/>
+                    @lang('COM_QUEUES_JOB_FIELD_MESSAGE_ID'): {{ $row->message_id }}
+                @else
+                    ---
+                @endif
             </td>
             <td>
                 @if (count($row->handledBy()) > 0)
@@ -79,6 +83,17 @@ $model = $this->getModel();
                             </li>
                         @endforeach
                     </ul>
+                @endif
+                @if ($row->hasFailed())
+                    <div>Failure Messages</div>
+                    <ul class="unstyled">
+                        @foreach ($row->envelope()->all(Symfony\Component\Messenger\Stamp\RedeliveryStamp::class) as $failure)
+                            <li>
+                                <strong>{{ $failure->getExceptionMessage() }}</strong>
+                            </li>
+                        @endforeach
+                    </ul>
+
                 @endif
             </td>
             <td>

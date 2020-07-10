@@ -110,17 +110,34 @@ class Jobs extends DataModel
         return $this;
     }
 
-    public function envelope(): Envelope
+    public function envelope(): ?Envelope
     {
-        $data = [
-            'headers' => \json_decode($this->headers, true),
-            'body' => $this->body
-        ];
-        return $this->serializer->decode($data);
+        $serializer = $this->serializer;
+        if (!$serializer) {
+            $this->serializer = Serializer::create();
+        }
+
+        if (!$serializer) {
+            return null;
+        }
+
+        try {
+            $data = [
+                'headers' => \json_decode($this->headers, true),
+                'body' => $this->body
+            ];
+            return $serializer->decode($data);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     public function handledBy(): array
     {
+        if (!$this->envelope()) {
+            return [];
+        }
+
         $handlers = [];
         $handlerStamps = $this->envelope()->all(HandledStamp::class);
         /** @var HandledStamp $stamp */

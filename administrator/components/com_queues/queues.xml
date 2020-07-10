@@ -7,7 +7,7 @@
     <authorUrl>https://www.weble.it</authorUrl>
     <copyright>Copyright (c)2020 Weble Srl</copyright>
     <license>GNU GPL v3 or later</license>
-    <version>1.3.0</version>
+    <version>1.4.0</version>
     <description>COM_QUEUES_DESC</description>
 
     <!-- Administrator back-end section -->
