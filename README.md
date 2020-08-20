@@ -3,8 +3,6 @@
 Implementation of symfony/messenger for Joomla! to run background commands using queues.
 See [https://symfony.com/doc/current/messenger.html](https://symfony.com/doc/current/messenger.html)
 
-# WARNING: This is still in development. Use at your own risk, and feel free to PR any changes you see fit!
-
 ## Requirements
 
 First, you need to have our Joomla Commands package installed:
@@ -15,12 +13,16 @@ This extension also requires FOF3 to be installed (any Akeeba extension installs
 
 ## Installation
 
-We don't yet provide an installable package.
-This repository mimics the standard Joomla! installation structure, so just by downloading the master branch into your project should make it available for installation through the standard Joomla! discover installer.
+Grab an installable package from the [Releases page](https://github.com/Weble/JoomlaQueues/releases)
+Alternatively, this repository mimics the standard Joomla! installation structure, so just by downloading the master branch into your project should make it available for installation through the standard Joomla! discover installer.
 
-By default we provide a default bus and a default transport using the database driver, with a default table that stores the jobs to be processed.
+## Available Transports
+By default this extension provides a default bus and 3 transports:
+- Database
+- Redis
+- Sync
 
-Additionally, we store failed jobs using the same transport, but a different queue name, and we log each message passing through the default bus in a separate table, allowing you to **monitor the job processing status.**
+Additionally, failed jobs are stored using the database transport, but a different queue name, and we log each message passing through the default bus in a separate table, allowing you to **monitor the job processing status.**
 
 ![Screenshot1](https://github.com/Weble/JoomlaQueues/raw/master/screenshot1.png)
 ![Screenshot2](https://github.com/Weble/JoomlaQueues/raw/master/screenshot2.png)
@@ -126,7 +128,7 @@ Other than the basic usage, you can extensively customize other parts of the pro
 
 ### Adding Transports
 
-You can add more transports (like redis, sqs, etc) through Joomla! plugins as well.
+You can add more transports (like sqs, etc) through Joomla! plugins as well.
 This is done using the ```onGetQueueTransports``` method.
 
 This method should return an array of objects that implements the ```\Weble\JoomlaQueues\Transport\ProvidesTransport``` interface. This class describes the transport itself, and its accessory configuration, like retry strategy and serializer.
