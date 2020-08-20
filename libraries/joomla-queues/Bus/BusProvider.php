@@ -114,7 +114,8 @@ abstract class BusProvider implements ProvidesBus
             ),
             new AddTimeStampMiddleware(ReceivedTimeStamp::class),
             new HandleMessageMiddleware(
-                $this->container->handler->locator()
+                $this->container->handler->locator(),
+                $this->container->params->get('allow_no_handlers', true)
             ),
             new AddTimeStampMiddleware(HandledTimeStamp::class),
             new LogJobsMiddleware()

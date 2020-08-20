@@ -16,6 +16,13 @@
         <fields name="params">
             <fieldset name="basic">
                 <field
+                        name="dbindex"
+                        label="Redis DbIndex"
+                        description="Redis DbIndex"
+                        default="1"
+                        type="number"
+                />
+                <field
                         name="override_retry_strategy"
                         label="COM_QUEUES_CONFIG_OVERRIDE_RETRY_STRATEGY_LBL"
                         description="COM_QUEUES_CONFIG_OVERRIDE_RETRY_STRATEGY_DESC"

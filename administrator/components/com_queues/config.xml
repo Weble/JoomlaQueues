@@ -27,6 +27,16 @@
                 default="failure"
                 type="queuetransports"
         />
+        <field
+                name="allow_no_handlers"
+                label="COM_QUEUES_CONFIG_ALLOW_NO_HANDLERS_LBL"
+                description="COM_QUEUES_CONFIG_ALLOW_NO_HANDLERS_DESC"
+                default="1"
+                type="lust"
+        >
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
     </fieldset>
     <fieldset
             name="retry_strategy"
